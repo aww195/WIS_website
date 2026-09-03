@@ -11,15 +11,15 @@
     "astro": "astro",
     "preflight": "bash scripts/preflight.sh"
   },
-  "overrides": {
-    "vite": "^7"
+  "engines": {
+    "node": ">=22.12.0"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/sitemap": "^3.7.4",
     "@fontsource/ibm-plex-mono": "^5.2.7",
     "@fontsource/ibm-plex-sans": "^5.2.8",
     "@fontsource/source-serif-4": "^5.2.6",
-    "astro": "^6.3.3"
+    "astro": "^7.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.5.0",

@@ -1,19 +1,43 @@
 ---
-// Person page. Mounts ProjectsBlock with zero items to exercise the A-4
-// gate: below the two-item threshold it must render nothing at all — no
-// wrapper, no heading, no whitespace artifact. Verified in the built HTML,
-// not just by eye.
+// Person page.
 //
-// The published title is an open owner ruling (WO-1 Q-1), so no title is
-// asserted here at M3. The H1 is the name alone.
+// Title is asserted here: Chief Technology Officer. This resolves the
+// conflict WO-1 recorded as Q-1 — the prior site published CTO against a
+// different person, and the owner has ruled that the live site moves that
+// person to Chief Scientist. Nothing on this site asserts a title for
+// anyone else yet, so there is no remaining collision.
+//
+// ProjectsBlock is mounted with zero items to exercise the A-4 gate: below
+// the two-item threshold it must render nothing at all — no wrapper, no
+// heading, no whitespace artifact. Verified in the built HTML.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectsBlock from '../../components/ProjectsBlock.astro';
+
+const NAME = 'Tony Wright';
+const TITLE = 'Chief Technology Officer';
 ---
 <BaseLayout
-  title="Tony Wright"
-  description="Tony Wright at Wright Intel Solutions, LLC — program management across military, government acquisition, and commercial contexts."
+  title={NAME}
+  description={`${NAME}, ${TITLE} at Wright Intel Solutions, LLC — program management across military, government acquisition, and commercial contexts.`}
 >
-  <h1 class="text-3xl sm:text-4xl">Tony Wright</h1>
+  <header class="person-header">
+    <h1 class="text-3xl sm:text-4xl">{NAME}</h1>
+    <p class="person-title font-mono">{TITLE}</p>
+  </header>
 
   <ProjectsBlock items={[]} />
 </BaseLayout>
+
+<style>
+  /* Name and title read as one unit, so the gap between them is tighter
+     than the layout's default block rhythm. */
+  .person-header { margin-bottom: 0; }
+
+  .person-title {
+    margin: 0.5rem 0 0;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

@@ -8,8 +8,8 @@ export default defineConfig({
   // canonical for this site (both apex and www are served).
   site: 'https://www.wrightintel.net',
 
-  // Directory-style URLs: /capabilities/ not /capabilities.html. The
-  // old-URL map in docs/redirects.md translates the legacy .html paths.
+  // Directory-style URLs: /people/ not /people.html. The old-URL map in
+  // docs/redirects.md translates the legacy .html paths.
   trailingSlash: 'always',
 
   // Static output — the site is served from object storage behind a CDN.

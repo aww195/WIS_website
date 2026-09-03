@@ -22,10 +22,12 @@ interface Props {
 
 const { activePath } = Astro.props;
 
+// Capabilities has no page of its own — the Reps & Certs disclosure below
+// carries it, in two rows: the capability statement itself, and the SBA
+// verification route with the UEI ready to copy into SBA's search.
 const navItems = [
-  { href: '/capabilities/', label: 'Capabilities' },
-  { href: '/people/',       label: 'People' },
-  { href: '/contact/',      label: 'Contact' },
+  { href: '/people/',  label: 'People' },
+  { href: '/contact/', label: 'Contact' },
 ];
 
 // SAM.gov Unique Entity ID — public registry data, verifiable by anyone.
@@ -60,7 +62,7 @@ const active = norm(activePath);
             </li>
           );
         })}
-        <li>
+        <li class="nav-item-repcerts">
           <details class="repcerts">
             <summary class="nav-link repcerts-summary">
               Reps &amp; Certs
@@ -70,14 +72,20 @@ const active = norm(activePath);
               </svg>
             </summary>
             <div class="repcerts-panel">
+              {/* Row 1 — the capability statement itself. */}
               <a class="repcerts-item" href={CAPABILITY_PDF}>
                 Capability Statement (PDF)
               </a>
+
+              {/* Row 2 — verification at the source. SBA's search takes a
+                  UEI, so the UEI sits right here ready to copy rather than
+                  making someone hunt for it on another page. */}
               <div class="repcerts-item repcerts-verify">
                 <a href={SBA_SEARCH} target="_blank" rel="noopener">
                   Verify WOSB at SBA — search by UEI
                 </a>
-                <UeiCopy uei={UEI} showLabel={false} />
+                <UeiCopy uei={UEI} />
+                <span class="repcerts-hint">Copy, then paste into SBA's search</span>
               </div>
             </div>
           </details>
@@ -189,13 +197,42 @@ const active = norm(activePath);
   .repcerts-verify a { color: var(--muted); text-decoration: none; }
   .repcerts-verify a:hover { color: var(--accent); }
 
+  .repcerts-hint {
+    font-size: 0.68rem;
+    color: color-mix(in srgb, var(--muted) 80%, transparent);
+    line-height: 1.3;
+  }
+
+  /* Below 640px the panel drops into normal flow rather than overlaying —
+     an absolutely-positioned panel anchored to a stacked nav has nowhere
+     to go on a 390px screen without clipping.
+
+     In flow it must also give up its min-width and take the full row.
+     Leaving `min-width: 17rem` on a static panel inside a wrapping flex
+     list pushes it past the content box and scrolls the page sideways
+     (NFR-5). The disclosure therefore claims the whole row, and the panel
+     fills it. */
   @media (max-width: 640px) {
+    /* The flex item is the <li>, not the <details> inside it — sizing the
+       details alone leaves the row as wide as its summary text, which
+       clips the panel. Claim the whole row on the list item. */
+    .nav-item-repcerts {
+      flex-basis: 100%;
+      width: 100%;
+    }
+
+    .repcerts { display: block; }
+
     .repcerts-panel {
       position: static;
       min-width: 0;
+      width: 100%;
       box-shadow: none;
       margin-top: 0.4rem;
     }
+
+    /* Long enough to wrap at this width; let it. */
+    .repcerts-verify a { white-space: normal; }
   }
 </style>
 
