@@ -28,7 +28,10 @@ scan() {
   local label="$1" pattern="$2" flags="$3"
   local out
   if [ "$MODE" = "--history" ]; then
-    out=$(git log -p --all | grep -n -E $flags -- "$pattern" || true)
+    # The pathspec matters: without it the diff includes this file, and the
+    # gate flags its own pattern definitions. `git log -p` accepts a
+    # pathspec, so scope the diff rather than filtering the output.
+    out=$(git log -p --all -- . "$EXCLUDE" | grep -n -E $flags -- "$pattern" || true)
   else
     out=$(git grep -n $flags -E "$pattern" -- . "$EXCLUDE" || true)
   fi
