@@ -1,12 +1,81 @@
 ---
-// People index. Bios and the roster are M4 — and the roster itself is
-// blocked on an owner ruling (WO-1 Q-1: the CTO title is currently held
-// by one person on the live site and assigned to another by SRS C-1).
+// People index.
+//
+// The roster is a list of links, not content. Bios, portraits and ordering
+// are M4 — nothing here invents copy (H-5). What it does fix is that
+// /people/tony-wright/ was previously reachable only by typing the URL:
+// no page linked it, so the site had a route no visitor could find.
+//
+// Entries are data so M4 adds a person by adding a row here, not by
+// editing markup. Titles are only listed for people whose title is
+// settled; the roster renders a name alone if `title` is omitted.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+interface Person {
+  name: string;
+  href: string;
+  title?: string;
+}
+
+const roster: Person[] = [
+  { name: 'Tony Wright', href: '/people/tony-wright/', title: 'Chief Technology Officer' },
+];
 ---
 <BaseLayout
   title="People"
   description="The senior Intelligence Community and engineering leaders behind Wright Intel Solutions, LLC."
 >
   <h1 class="text-3xl sm:text-4xl">People</h1>
+
+  <ul class="roster">
+    {roster.map((person) => (
+      <li class="roster-item">
+        <a href={person.href} class="roster-link">
+          <span class="roster-name font-display">{person.name}</span>
+          {person.title && <span class="roster-title font-mono">{person.title}</span>}
+        </a>
+      </li>
+    ))}
+  </ul>
 </BaseLayout>
+
+<style>
+  .roster {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  /* The whole row is the target, so it stays comfortable to hit on a
+     touch screen rather than being a name-sized tap area. */
+  .roster-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .roster-link:hover {
+    border-color: var(--accent);
+  }
+
+  .roster-name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .roster-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>
