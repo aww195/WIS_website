@@ -1,0 +1,16 @@
+---
+// Contact. The FR-CL contact line is the whole page at M3; the form is M5.
+// Nothing here promises a form that does not exist yet (H-5).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContactLine from '../../components/ContactLine.astro';
+---
+<BaseLayout
+  title="Contact"
+  description="Reach Wright Intel Solutions, LLC by phone or email, or connect with the firm on LinkedIn."
+>
+  <h1 class="text-3xl sm:text-4xl">Contact</h1>
+
+  <div class="mt-6">
+    <ContactLine />
+  </div>
+</BaseLayout>

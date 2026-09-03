@@ -1,0 +1,186 @@
+---
+// ContactLine (FR-CL) — the recurring contact affordance. Three elements:
+//
+//   1. Phone    — (804) 220-8651 → tel:+18042208651
+//   2. Email    — aww@wrightintel.net → click-to-copy, not mailto:
+//   3. LinkedIn — labelled link to the company page (C-9.4)
+//
+// Ported from the aww195 sibling's ContactLine, which learned two things
+// the hard way and both are carried:
+//
+// mailto: was replaced with click-to-copy because on the owner's machine a
+// mailto: link opens a browser webmail tab rather than a mail client. That
+// is a system handler decision, not a bug — but copy-to-clipboard is
+// deterministic everywhere, so it is the better affordance regardless.
+//
+// The address is split across data-* attributes and joined only at
+// runtime. A scraper reading the static HTML sees "aww" and
+// "wrightintel.net" as disjoint strings and never a live address. This is
+// the one address published site-wide (WO-1 address inventory), so it is
+// worth protecting.
+//
+// The accessible name is rewritten at runtime to contain the resolved
+// address, satisfying WCAG 2.5.3 label-in-name — the sibling shipped this
+// fix in its accessibility pass and it is carried rather than rediscovered.
+const PHONE_DISPLAY = '(804) 220-8651';
+const PHONE_TEL     = '+18042208651';
+const EMAIL_USER    = 'aww';
+const EMAIL_HOST    = 'wrightintel.net';
+const LINKEDIN_URL  = 'https://www.linkedin.com/company/wrightintel-net/';
+---
+
+<div class="contact-line" role="group" aria-label="Contact Wright Intel Solutions">
+  <ul class="contact-line-list font-mono">
+    <li>
+      <a href={`tel:${PHONE_TEL}`} class="contact-line-link">{PHONE_DISPLAY}</a>
+    </li>
+    <li aria-hidden="true" class="contact-line-sep">·</li>
+    <li>
+      <button
+        type="button"
+        class="contact-line-link contact-line-email"
+        data-email-user={EMAIL_USER}
+        data-email-host={EMAIL_HOST}
+        aria-label="Copy email address to clipboard"
+      >
+        <span data-email-display>email</span>
+        <span class="contact-line-email-feedback" aria-hidden="true" data-email-feedback></span>
+      </button>
+    </li>
+    <li aria-hidden="true" class="contact-line-sep">·</li>
+    <li>
+      <a href={LINKEDIN_URL} class="contact-line-link" target="_blank" rel="noopener">
+        Wright Intel Solutions, LLC on LinkedIn
+      </a>
+    </li>
+  </ul>
+  <div class="sr-only" aria-live="polite" data-email-live></div>
+</div>
+
+<style>
+  .contact-line { width: 100%; }
+
+  .contact-line-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.9rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  .contact-line-list > li { margin: 0; }
+
+  /* Anchors and the email <button> share one style so the row reads as
+     three uniform affordances regardless of element type. */
+  .contact-line-link {
+    color: var(--muted);
+    text-decoration: none;
+    border: 0;
+    border-bottom: 1px dotted color-mix(in srgb, var(--accent) 55%, transparent);
+    padding: 0 0 1px;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    line-height: 1.3;
+  }
+  .contact-line-link:hover,
+  .contact-line-link:focus-visible {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .contact-line-email {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+
+  .contact-line-email-feedback {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    color: var(--signal);
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+    pointer-events: none;
+  }
+  .contact-line-email-feedback.is-visible { opacity: 1; }
+
+  .contact-line-sep {
+    color: color-mix(in srgb, var(--muted) 45%, transparent);
+    user-select: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-line-email-feedback { transition: none; }
+  }
+</style>
+
+<script>
+  function fallbackCopy(text: string): boolean {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  async function copyToClipboard(text: string): Promise<boolean> {
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        return fallbackCopy(text);
+      }
+    }
+    return fallbackCopy(text);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('button[data-email-user]').forEach((btn) => {
+    const user = btn.dataset.emailUser;
+    const host = btn.dataset.emailHost;
+    if (!user || !host) return;
+
+    const addr = `${user}@${host}`;
+    const display = btn.querySelector<HTMLElement>('[data-email-display]');
+    if (display) display.textContent = addr;
+
+    // WCAG 2.5.3 — the accessible name must contain the visible label.
+    btn.setAttribute('aria-label', `Copy ${addr} to clipboard`);
+
+    const feedback = btn.querySelector<HTMLElement>('[data-email-feedback]');
+    const live = btn
+      .closest<HTMLElement>('.contact-line')
+      ?.querySelector<HTMLElement>('[data-email-live]') ?? null;
+    let resetTimer: number | null = null;
+
+    btn.addEventListener('click', async () => {
+      const ok = await copyToClipboard(addr);
+      if (!ok) return;
+      if (feedback) {
+        feedback.textContent = '✓ copied';
+        feedback.classList.add('is-visible');
+      }
+      if (live) live.textContent = 'Email copied';
+      if (resetTimer) window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        if (feedback) feedback.classList.remove('is-visible');
+        if (live) live.textContent = '';
+      }, 1600);
+    });
+  });
+</script>

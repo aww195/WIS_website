@@ -1,0 +1,30 @@
+---
+// 404. Astro emits this to dist/404.html. Routed through BaseLayout so it
+// inherits the shared chrome and tokens.
+//
+// Note for M6: the production distribution currently has zero custom error
+// responses, so a missing key returns a CloudFront AccessDenied XML page
+// and this file is never served. Wiring it up is an M6 task; docs/
+// redirects.md is the input for that work.
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Page not found"
+  description="That page does not exist on the Wright Intel Solutions, LLC website."
+>
+  <h1 class="text-3xl sm:text-4xl">Page not found</h1>
+
+  <p class="mt-6">
+    <a href="/" class="notfound-link">Return to the home page</a>
+  </p>
+</BaseLayout>
+
+<style>
+  .notfound-link {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    padding-bottom: 1px;
+  }
+  .notfound-link:hover { border-bottom-color: var(--accent); }
+</style>

@@ -1,0 +1,85 @@
+---
+// BaseLayout — the shared document shell. Every route renders through it.
+//
+// Emits: title (suffixed with the legal entity name), meta description,
+// canonical, viewport, favicon set, and an EMPTY OG/Twitter slot that M6
+// fills. Per WO-3 §3.4 the social tags are deliberately absent at M3
+// rather than half-populated, so M6 has one obvious place to work and no
+// partially-correct card ships in the meantime.
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  /** Page name only — the legal entity name is appended here. */
+  title: string;
+  /** One plain WIS-specific sentence. Never empty (WO-3 §3.4).
+   *  Replaced with the tuned meta layer at M6. */
+  description: string;
+  activePath?: string;
+}
+
+const { title, description, activePath = Astro.url.pathname } = Astro.props;
+
+// Absolute canonical against `site` in astro.config.mjs.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    {/* Pre-paint theme resolution. Must run before first paint to avoid a
+        flash of the wrong palette, so it is synchronous, inline, and
+        `is:inline` to keep Astro/Vite from moving or bundling it.
+        At M3 there is no stored preference and no toggle — the class is
+        derived from the OS setting alone. The localStorage read is here
+        so that adding a toggle later is a Header change only, and it is
+        wrapped in try/catch because storage throws outright in some
+        privacy modes rather than returning null. */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('wis-theme');
+          var useDark =
+            stored === null
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+              : stored === 'dark';
+          document.documentElement.classList.toggle('dark', useDark);
+        } catch (e) {
+          /* Storage unavailable — fall back to the OS preference. */
+          try {
+            document.documentElement.classList.toggle(
+              'dark',
+              window.matchMedia('(prefers-color-scheme: dark)').matches,
+            );
+          } catch (e2) {
+            /* No matchMedia either — light palette is the :root default. */
+          }
+        }
+      })();
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title} — Wright Intel Solutions, LLC</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    {/* OG / Twitter card: M6. Intentionally empty at M3 — see header note. */}
+  </head>
+
+  <body class="min-h-screen flex flex-col bg-ground text-ink font-prose">
+    <Header activePath={activePath} />
+    <main class="flex-1 w-full max-w-5xl mx-auto px-5 py-10 sm:px-6">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

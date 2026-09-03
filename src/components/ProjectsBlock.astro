@@ -1,0 +1,89 @@
+---
+// ProjectsBlock (A-4) — the gate and mount point.
+//
+// At M3 this component's entire job is to render NOTHING when it has
+// nothing worth showing, and to do so without leaving a trace: no wrapper
+// element, no heading, no margin, no whitespace artifact. A block that
+// collapses to an empty bordered box on a person with one project is worse
+// than no block, so the threshold is enforced here rather than at every
+// call site.
+//
+// Threshold is two, not one: a "projects" carousel containing a single
+// item is a mislabelled figure, and the carousel affordance (controls,
+// paging) would be inert.
+//
+// Carousel internals are M4. When they arrive, note the sibling's hard-won
+// gotcha recorded in harvest/aww195_pattern_notes.md §5: Astro scopes
+// component styles with a build-time hash attribute, and elements created
+// at runtime by this component's own script never receive it — so scoped
+// selectors silently fail to match. Runtime-created nodes need
+// `.wrapper :global(img)` form. Not an issue yet: nothing here is built
+// in JS.
+
+export interface ProjectItem {
+  /** Short title as it should appear. */
+  title: string;
+  /** One-line description. */
+  blurb: string;
+  /** Site-relative image path under public/. */
+  image?: string;
+  /** Outbound or internal href, if the item links anywhere. */
+  href?: string;
+}
+
+interface Props {
+  items?: ProjectItem[];
+  /** Section heading. Only rendered when the block itself renders. */
+  heading?: string;
+}
+
+const { items = [], heading = 'Selected work' } = Astro.props;
+
+// The gate. Below the threshold the component contributes nothing at all.
+const shouldRender = items.length >= 2;
+---
+{shouldRender && (
+  <section class="projects-block" aria-labelledby="projects-block-heading">
+    <h2 id="projects-block-heading" class="projects-block-heading font-display">{heading}</h2>
+    <ul class="projects-block-list">
+      {items.map((item) => (
+        <li class="projects-block-item">
+          {item.href ? <a href={item.href}>{item.title}</a> : <span>{item.title}</span>}
+          <p class="projects-block-blurb">{item.blurb}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .projects-block { margin-top: 2.5rem; }
+
+  .projects-block-heading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 1rem;
+  }
+
+  .projects-block-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .projects-block-item {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1rem;
+    background: var(--surface);
+  }
+
+  .projects-block-blurb {
+    margin: 0.35rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>

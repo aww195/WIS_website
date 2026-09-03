@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# environment / secrets — never committed (NFR-9)
+.env
+.env.*
+*.pem
+credentials
+
+# design source: the Bootstrap Studio project stays outside this repo
+*.bsdesign
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp

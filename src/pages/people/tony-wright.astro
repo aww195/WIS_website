@@ -1,0 +1,19 @@
+---
+// Person page. Mounts ProjectsBlock with zero items to exercise the A-4
+// gate: below the two-item threshold it must render nothing at all — no
+// wrapper, no heading, no whitespace artifact. Verified in the built HTML,
+// not just by eye.
+//
+// The published title is an open owner ruling (WO-1 Q-1), so no title is
+// asserted here at M3. The H1 is the name alone.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectsBlock from '../../components/ProjectsBlock.astro';
+---
+<BaseLayout
+  title="Tony Wright"
+  description="Tony Wright at Wright Intel Solutions, LLC — program management across military, government acquisition, and commercial contexts."
+>
+  <h1 class="text-3xl sm:text-4xl">Tony Wright</h1>
+
+  <ProjectsBlock items={[]} />
+</BaseLayout>

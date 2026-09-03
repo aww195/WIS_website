@@ -1,0 +1,220 @@
+---
+// Header — shared chrome, identical on every route.
+//
+// Wordmark string is exact per C-2: "Wright Intel Solutions, LLC".
+// Nav: Capabilities · People · Contact · Reps & Certs (disclosure).
+//
+// The Reps & Certs dropdown is built on <details>/<summary> rather than a
+// JS menu. There is no dropdown in the aww195 sibling to fork, and the
+// native disclosure is keyboard-operable, screen-reader-announced, and
+// works with JS disabled — which matters for a menu whose whole job is
+// pointing at verification sources. The only script is a click-outside
+// and Escape close, both progressive enhancements.
+//
+// Grid band + sub-640px stacking are ported from the sibling's Header.
+// The sibling's theme-toggle switch is deliberately NOT ported (M3 follows
+// prefers-color-scheme only; a visible toggle is an owner decision).
+import UeiCopy from './UeiCopy.astro';
+
+interface Props {
+  activePath: string;
+}
+
+const { activePath } = Astro.props;
+
+const navItems = [
+  { href: '/capabilities/', label: 'Capabilities' },
+  { href: '/people/',       label: 'People' },
+  { href: '/contact/',      label: 'Contact' },
+];
+
+// SAM.gov Unique Entity ID — public registry data, verifiable by anyone.
+const UEI = 'ZWA5GLBFS9A5';
+const SBA_SEARCH = 'https://search.certifications.sba.gov/';
+const CAPABILITY_PDF = '/assets/img/WIS_Capability_Statement.pdf';
+
+// Normalise so a trailing slash never breaks the active-state match.
+const norm = (p: string) => (p.endsWith('/') ? p : p + '/');
+const active = norm(activePath);
+---
+
+<header class="border-b border-rule bg-surface">
+  <div class="header-grid w-full max-w-5xl mx-auto px-5 py-4 sm:px-6">
+    <a href="/" class="header-brand font-display text-lg sm:text-xl text-ink no-underline">
+      Wright Intel Solutions, LLC
+    </a>
+
+    <nav class="header-nav font-prose text-sm" aria-label="Primary">
+      <ul class="nav-list">
+        {navItems.map((item) => {
+          const isActive = active === norm(item.href);
+          return (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive ? 'page' : undefined}
+                class={isActive ? 'nav-link is-active' : 'nav-link'}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })}
+        <li>
+          <details class="repcerts">
+            <summary class="nav-link repcerts-summary">
+              Reps &amp; Certs
+              <svg class="repcerts-caret" viewBox="0 0 12 8" aria-hidden="true" focusable="false">
+                <path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </summary>
+            <div class="repcerts-panel">
+              <a class="repcerts-item" href={CAPABILITY_PDF}>
+                Capability Statement (PDF)
+              </a>
+              <div class="repcerts-item repcerts-verify">
+                <a href={SBA_SEARCH} target="_blank" rel="noopener">
+                  Verify WOSB at SBA — search by UEI
+                </a>
+                <UeiCopy uei={UEI} showLabel={false} />
+              </div>
+            </div>
+          </details>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  /* Two logical cells: brand left, nav right. Below 640px they stack,
+     which is what keeps a four-item nav from overflowing at 390px. */
+  .header-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 1.5rem;
+    row-gap: 0.75rem;
+    align-items: center;
+  }
+  .header-brand { grid-column: 1; grid-row: 1; justify-self: start; }
+  .header-nav   { grid-column: 2; grid-row: 1; justify-self: end; }
+
+  @media (max-width: 640px) {
+    .header-grid { grid-template-columns: 1fr; }
+    .header-brand { grid-column: 1; grid-row: 1; justify-self: start; }
+    .header-nav   { grid-column: 1; grid-row: 2; justify-self: start; }
+  }
+
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+  }
+
+  .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.15rem 0;
+    border-bottom: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .nav-link:hover { color: var(--accent); }
+  .nav-link.is-active {
+    color: var(--ink);
+    border-bottom-color: var(--signal);
+  }
+
+  /* Disclosure. The panel is absolutely positioned on wide viewports so
+     it overlays content; below 640px it becomes a normal block in flow,
+     because an overlay panel anchored to a stacked nav has nowhere to go
+     on a 390px screen without clipping. */
+  .repcerts { position: relative; }
+
+  .repcerts-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  .repcerts-summary::-webkit-details-marker { display: none; }
+
+  .repcerts-caret {
+    width: 0.6rem;
+    height: 0.4rem;
+    transition: transform 150ms ease-out;
+  }
+  .repcerts[open] .repcerts-caret { transform: rotate(180deg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .repcerts-caret { transition: none; }
+  }
+
+  .repcerts-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 20;
+    min-width: 17rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.35);
+    padding: 0.35rem 0;
+  }
+
+  .repcerts-item {
+    display: block;
+    padding: 0.5rem 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  a.repcerts-item:hover { color: var(--accent); background: var(--ground); }
+
+  .repcerts-verify {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    border-top: 1px solid var(--rule);
+    margin-top: 0.35rem;
+    padding-top: 0.6rem;
+  }
+  .repcerts-verify a { color: var(--muted); text-decoration: none; }
+  .repcerts-verify a:hover { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .repcerts-panel {
+      position: static;
+      min-width: 0;
+      box-shadow: none;
+      margin-top: 0.4rem;
+    }
+  }
+</style>
+
+<script>
+  // Progressive enhancement only — the disclosure works without this.
+  // Closes the panel on Escape and on a click outside it, which is the
+  // behaviour a pointer user expects from something menu-shaped.
+  const details = document.querySelector<HTMLDetailsElement>('.repcerts');
+
+  if (details) {
+    document.addEventListener('click', (event) => {
+      if (!details.open) return;
+      if (!details.contains(event.target as Node)) details.open = false;
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !details.open) return;
+      details.open = false;
+      details.querySelector<HTMLElement>('summary')?.focus();
+    });
+  }
+</script>
