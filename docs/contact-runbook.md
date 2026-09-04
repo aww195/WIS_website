@@ -67,6 +67,11 @@ aws logs filter-log-events --log-group-name /aws/apigateway/wis-contact-v2-acces
 
 No code change: the Lambda requires and verifies `turnstileToken` when the
 secret is set; the page renders the widget when the site key is set.
+4. **Edge CSP (M6/M7):** the viewer-response CloudFront Function
+   (`infra/cloudfront/viewer-response.js`) sets `script-src 'self' '<hash>'`
+   and `frame-src 'self'`. Turnstile needs `https://challenges.cloudflare.com`
+   added to both, then the function republished — otherwise the widget is
+   blocked and the form cannot submit.
 
 ## Pre-cutover checklist (WO-7)
 
