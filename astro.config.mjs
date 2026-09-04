@@ -15,6 +15,14 @@ export default defineConfig({
   // Static output — the site is served from object storage behind a CDN.
   output: 'static',
 
+  // Keep every component <script> as an external hashed file rather than
+  // inlined into the HTML. Astro inlines small scripts by default; with a
+  // Content-Security-Policy of script-src 'self' (WO-6 §3.1) each inline
+  // block would need its own hash on every page. The one deliberate inline
+  // script (the pre-paint theme resolver in BaseLayout, `is:inline`) gets a
+  // single hash in the policy.
+  vite: { build: { assetsInlineLimit: 0 } },
+
   integrations: [
     sitemap({
       // Keep the error page and the two PDF-view routes out of the index.

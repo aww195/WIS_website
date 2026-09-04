@@ -2,13 +2,13 @@
 // BaseLayout — the shared document shell. Every route renders through it.
 //
 // Emits: title (suffixed with the legal entity name), meta description,
-// canonical, viewport, favicon set, and an EMPTY OG/Twitter slot that M6
-// fills. Per WO-3 §3.4 the social tags are deliberately absent at M3
-// rather than half-populated, so M6 has one obvious place to work and no
-// partially-correct card ships in the meantime.
+// canonical, viewport, favicon set, the OpenGraph/Twitter card, and the
+// JSON-LD graph (Organization on every page; Person on person pages;
+// WebPage where a page asks for it). M6 filled the slot M3 left empty.
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { UEI, LINKEDIN_COMPANY } from '../data/site';
 
 interface Props {
   /** Page name only — the legal entity name is appended here. */
@@ -20,12 +20,88 @@ interface Props {
   /** Keep the page out of search indexes. Used by the PDF-view routes,
    *  where the parent HTML page is the indexable surface (WO-4 §3). */
   noindex?: boolean;
+  /** Person pages pass the subject; emits og:type=profile and a Person node. */
+  person?: {
+    name: string;
+    jobTitle: string;
+    image: string;
+    sameAs?: string;
+  };
+  /** Emit a WebPage node with `about` → the Organization (the Capabilities page). */
+  webPage?: boolean;
 }
 
-const { title, description, activePath = Astro.url.pathname, noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  activePath = Astro.url.pathname,
+  noindex = false,
+  person,
+  webPage = false,
+} = Astro.props;
 
 // Absolute canonical against `site` in astro.config.mjs.
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const abs = (p: string) => new URL(p, Astro.site).toString();
+
+// --- Metadata layer (FR-META.2/.3, WO-6 §2) -------------------------------
+const SITE_NAME = 'Wright Intel Solutions, LLC';
+const fullTitle = `${title} — ${SITE_NAME}`;
+const OG_IMAGE = abs('/assets/img/og-default.png');   // 1200×630, owner marks only (C-5)
+const ogType = person ? 'profile' : 'website';
+
+// Organization — one node, every page. Facts only: public registry data,
+// the published location in city form (no street), the FR-CL contact
+// number and address, the company LinkedIn. No founder, no headcount, no
+// certification claims beyond what the SBA search verifies (H-4).
+const organization = {
+  '@type': 'Organization',
+  '@id': abs('/#organization'),
+  name: SITE_NAME,
+  url: abs('/'),
+  logo: abs('/assets/img/WIS_ICON.png'),
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Lancaster',
+    addressRegion: 'VA',
+    postalCode: '22503',
+    addressCountry: 'US',
+  },
+  telephone: '+18042208651',
+  email: 'aww@wrightintel.net',
+  sameAs: [LINKEDIN_COMPANY],
+  identifier: { '@type': 'PropertyValue', propertyID: 'UEI', value: UEI },
+  naics: '541618',
+};
+
+const graph: Record<string, unknown>[] = [organization];
+
+if (person) {
+  graph.push({
+    '@type': 'Person',
+    '@id': canonical.toString() + '#person',
+    name: person.name,
+    jobTitle: person.jobTitle,
+    worksFor: { '@id': organization['@id'] },
+    image: abs(person.image),
+    url: canonical.toString(),
+    ...(person.sameAs ? { sameAs: [person.sameAs] } : {}),
+  });
+}
+
+if (webPage) {
+  graph.push({
+    '@type': 'WebPage',
+    '@id': canonical.toString(),
+    url: canonical.toString(),
+    name: fullTitle,
+    description,
+    about: { '@id': organization['@id'] },
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: abs('/') },
+  });
+}
+
+const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
 ---
 
 <!doctype html>
@@ -66,17 +142,36 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
 
-    <title>{title} — Wright Intel Solutions, LLC</title>
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
+
+    {/* OpenGraph / Twitter (FR-META.2). One share image for every page —
+        person pages do not compose portraits into cards (WO-6 §2.2). */}
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={OG_IMAGE} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Wright Intel Solutions, LLC" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={OG_IMAGE} />
+
+    {/* Structured data (FR-META.3). */}
+    <script type="application/ld+json" set:html={jsonLd} />
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    {/* OG / Twitter card: M6. Intentionally empty at M3 — see header note. */}
   </head>
 
   <body class="min-h-screen flex flex-col bg-ground text-ink font-prose">

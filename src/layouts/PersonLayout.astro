@@ -15,7 +15,12 @@ interface Props {
 
 const { person, description } = Astro.props;
 ---
-<BaseLayout title={`${person.name} — ${person.title}`} description={description} activePath={`/people/${person.slug}/`}>
+<BaseLayout
+  title={`${person.name} — ${person.title}`}
+  description={description}
+  activePath={`/people/${person.slug}/`}
+  person={{ name: person.name, jobTitle: person.title, image: person.portrait, sameAs: person.linkedin }}
+>
   <nav class="person-back font-mono" aria-label="Breadcrumb">
     <a href="/people/">← People</a>
   </nav>
