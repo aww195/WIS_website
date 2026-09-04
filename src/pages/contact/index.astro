@@ -1,16 +1,25 @@
 ---
-// Contact. The FR-CL contact line lives here and only here now (WO-4 §2.2
-// moved it off the footer). The form markup is per FR-CF.6: labelled
-// fields, required, a honeypot, an accessible error region. Submit is
-// disabled with a one-sentence note until M5 wires the endpoint — no
-// script posts anywhere from this page yet.
+// Contact (WO-5 §3.2). The FR-CL contact line lives here and only here.
+// The form posts JSON to the contact endpoint (PUBLIC_CONTACT_ENDPOINT,
+// baked in at build time) via fetch — there is deliberately NO <form
+// action> fallback: the old site's malformed action attribute is the bug
+// class this avoids, and the fallback for a failed send is the contact line
+// already on the page.
+//
+// Client validation mirrors the Lambda (name 1–100, valid email ≤ 254,
+// message 1–2000); errors land in the role="alert" region and fields keep
+// their values. Turnstile renders only when PUBLIC_TURNSTILE_SITEKEY is
+// present (OQ-6 — dormant by default).
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContactLine from '../../components/ContactLine.astro';
 import { LOCATION } from '../../data/site';
+
+const ENDPOINT = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+const TURNSTILE_SITEKEY = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
 ---
 <BaseLayout
   title="Contact"
-  description="Reach Wright Intel Solutions, LLC by phone or email, connect on LinkedIn, or use the contact form."
+  description="Reach Wright Intel Solutions, LLC by phone or email, connect on LinkedIn, or send a message with the contact form."
 >
   <h1 class="text-3xl sm:text-4xl">Contact</h1>
 
@@ -19,39 +28,47 @@ import { LOCATION } from '../../data/site';
     <p class="font-mono text-xs text-muted contact-location">{LOCATION}</p>
   </div>
 
-  <form class="contact-form" method="post" action="" novalidate aria-describedby="form-note">
-    <div id="form-errors" class="form-errors" role="alert" aria-live="assertive"></div>
+  <form class="contact-form" novalidate data-contact-form data-endpoint={ENDPOINT} data-turnstile={TURNSTILE_SITEKEY || undefined}>
+    <div id="form-errors" class="form-errors" role="alert" aria-live="assertive" tabindex="-1"></div>
 
     <div class="field">
       <label for="name">Name</label>
-      <input id="name" name="name" type="text" required autocomplete="name" aria-required="true" />
+      <input id="name" name="name" type="text" required maxlength="100" autocomplete="name" aria-required="true" aria-describedby="form-errors" />
     </div>
 
     <div class="field">
       <label for="email">Email</label>
-      <input id="email" name="email" type="email" required autocomplete="email" aria-required="true" inputmode="email" />
+      <input id="email" name="email" type="email" required maxlength="254" autocomplete="email" aria-required="true" inputmode="email" aria-describedby="form-errors" />
     </div>
 
     <div class="field">
       <label for="message">Message</label>
-      <textarea id="message" name="message" rows="6" required aria-required="true"></textarea>
+      <textarea id="message" name="message" rows="6" required maxlength="2000" aria-required="true" aria-describedby="form-errors"></textarea>
     </div>
 
-    {/* Honeypot. Hidden from people (off-screen, tabindex -1, aria-hidden),
-        visible to form-fillers. Anything typed here marks the submission as
-        automated once the endpoint exists. */}
+    {/* Honeypot. Off-screen, tabindex -1, aria-hidden. A filled value is
+        sent along and the server drops the message silently. */}
     <div class="field-hp" aria-hidden="true">
       <label for="website">Website</label>
       <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
     </div>
 
+    {TURNSTILE_SITEKEY && (
+      <div class="field-turnstile">
+        <div class="cf-turnstile" data-sitekey={TURNSTILE_SITEKEY} data-theme="auto"></div>
+        <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+      </div>
+    )}
+
     <div class="field-submit">
-      <button type="submit" disabled aria-disabled="true">Send</button>
-      <p id="form-note" class="form-note">
-        This form does not send messages yet — use the phone number or email address above.
-      </p>
+      <button type="submit" data-submit>Send</button>
+      <p class="form-note">Your message goes to Wright Intel Solutions, LLC; replies come from the address above.</p>
     </div>
   </form>
+
+  <p class="contact-success" data-success hidden tabindex="-1">
+    Thank you — your message has been sent.
+  </p>
 </BaseLayout>
 
 <style>
@@ -59,6 +76,8 @@ import { LOCATION } from '../../data/site';
   .contact-location { margin: 0; }
 
   .contact-form { margin-top: 2.5rem; max-width: 36rem; display: grid; gap: 1rem; }
+  /* `display: grid` would otherwise beat the UA's [hidden] rule. */
+  .contact-form[hidden] { display: none; }
   .field { display: grid; gap: 0.35rem; }
   .field label { font-size: 0.8rem; letter-spacing: 0.04em; color: var(--muted); }
   .field input, .field textarea {
@@ -67,11 +86,17 @@ import { LOCATION } from '../../data/site';
     width: 100%;
   }
   .field input:focus-visible, .field textarea:focus-visible { border-color: var(--accent); }
+  .field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-color: var(--signal); }
 
   .field-hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 
   .form-errors:empty { display: none; }
-  .form-errors { color: var(--signal); font-size: 0.9rem; }
+  .form-errors {
+    color: var(--signal); font-size: 0.9rem; line-height: 1.5;
+    border: 1px solid color-mix(in srgb, var(--signal) 45%, transparent);
+    border-radius: 4px; padding: 0.6rem 0.8rem; background: var(--surface);
+  }
+  .form-errors :global(ul) { margin: 0.25rem 0 0; padding-left: 1.1rem; }
 
   .field-submit { display: grid; gap: 0.5rem; }
   .field-submit button {
@@ -79,6 +104,110 @@ import { LOCATION } from '../../data/site';
     background: var(--accent); color: var(--surface); border: 0; cursor: pointer;
     justify-self: start;
   }
-  .field-submit button[disabled] { opacity: 0.45; cursor: not-allowed; }
-  .form-note { margin: 0; font-size: 0.85rem; color: var(--muted); }
+  .field-submit button[disabled] { opacity: 0.55; cursor: progress; }
+  .form-note { margin: 0; font-size: 0.8rem; color: var(--muted); }
+
+  .contact-success {
+    margin-top: 2.5rem; max-width: 36rem;
+    padding: 0.9rem 1rem; border: 1px solid var(--rule); border-radius: 4px;
+    background: var(--surface); color: var(--ink);
+  }
 </style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('form[data-contact-form]');
+
+  if (form) {
+    const endpoint = form.dataset.endpoint ?? '';
+    const errorsEl = document.getElementById('form-errors') as HTMLElement;
+    const successEl = document.querySelector<HTMLElement>('[data-success]');
+    const submitBtn = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const fields = {
+      name: form.querySelector<HTMLInputElement>('#name')!,
+      email: form.querySelector<HTMLInputElement>('#email')!,
+      message: form.querySelector<HTMLTextAreaElement>('#message')!,
+    };
+    const LIMITS = { name: 100, email: 254, message: 2000 };
+    const CONTACT_LINE_HINT = 'Use the phone number or email address above instead.';
+
+    const strip = (s: string, keepNewlines = false) =>
+      s.replace(keepNewlines ? /[^\P{Cc}\n\t]/gu : /\p{Cc}/gu, '');
+    const looksLikeEmail = (s: string) => /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/.test(s);
+
+    function showErrors(items: Array<{ field?: string; error: string }>, lead: string) {
+      Object.values(fields).forEach((f) => f.removeAttribute('aria-invalid'));
+      const ul = items.length
+        ? `<ul>${items.map((i) => `<li>${escapeHtml(i.error)}</li>`).join('')}</ul>`
+        : '';
+      errorsEl.innerHTML = `${escapeHtml(lead)}${ul}`;
+      items.forEach((i) => {
+        const f = i.field && (fields as Record<string, HTMLElement | undefined>)[i.field];
+        if (f) f.setAttribute('aria-invalid', 'true');
+      });
+      errorsEl.focus();
+    }
+    function clearErrors() {
+      errorsEl.textContent = '';
+      Object.values(fields).forEach((f) => f.removeAttribute('aria-invalid'));
+    }
+    function escapeHtml(s: string) {
+      return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+    }
+
+    function validate() {
+      const name = strip(fields.name.value).trim();
+      const email = strip(fields.email.value).trim();
+      const message = strip(fields.message.value, true).trim();
+      const errors: Array<{ field: string; error: string }> = [];
+      if (name.length < 1 || name.length > LIMITS.name) errors.push({ field: 'name', error: `Name is required (1–${LIMITS.name} characters).` });
+      if (email.length < 1 || email.length > LIMITS.email || !looksLikeEmail(email)) errors.push({ field: 'email', error: 'A valid email address is required.' });
+      if (message.length < 1 || message.length > LIMITS.message) errors.push({ field: 'message', error: `Message is required (1–${LIMITS.message} characters).` });
+      return { name, email, message, errors };
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearErrors();
+
+      const { name, email, message, errors } = validate();
+      if (errors.length) { showErrors(errors, 'Please fix the following:'); return; }
+      if (!endpoint) { showErrors([], `The form is not configured. ${CONTACT_LINE_HINT}`); return; }
+
+      const payload: Record<string, string> = {
+        name, email, message,
+        website: (form.querySelector<HTMLInputElement>('#website')?.value ?? ''),
+      };
+      const ts = form.querySelector<HTMLInputElement>('input[name="cf-turnstile-response"]');
+      if (ts) payload.turnstileToken = ts.value;
+
+      if (submitBtn) submitBtn.disabled = true;
+      const ctrl = new AbortController();
+      const timer = window.setTimeout(() => ctrl.abort(), 8000);
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: ctrl.signal,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          form.hidden = true;
+          if (successEl) { successEl.hidden = false; successEl.focus(); }
+          return;
+        }
+        if (res.status === 400 && Array.isArray(data.errors)) {
+          showErrors(data.errors, 'Please fix the following:');
+        } else {
+          showErrors([], `The message could not be sent. ${CONTACT_LINE_HINT}`);
+        }
+      } catch {
+        showErrors([], `The message could not be sent. ${CONTACT_LINE_HINT}`);
+      } finally {
+        window.clearTimeout(timer);
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+</script>

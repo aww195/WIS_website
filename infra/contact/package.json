@@ -1,0 +1,17 @@
+{
+  "name": "wis-contact-v2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Contact-form handler for wrightintel.net — API Gateway HTTP API proxy → SES v2 (FR-CF).",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "build": "rm -rf build && mkdir -p build && cp index.mjs package.json package-lock.json build/ && npm ci --omit=dev --prefix build --ignore-scripts && (cd build && zip -qr ../function.zip .)"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.700.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

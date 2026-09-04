@@ -60,7 +60,9 @@ scan "third-party / removed people" "$PAT_PEOPLE" "-i"
 scan "stale titles and names"   "$PAT_STALE"  "-i"
 
 # Files that must never be tracked, regardless of content.
-BADFILES=$(git ls-files | grep -E '(^|/)\.env|(^|/)credentials$|\.pem$|\.bsdesign$|(^|/)\.aws/' || true)
+# .env.example is the committed placeholder template (WO-5 §3.2); every
+# other .env* is forbidden.
+BADFILES=$(git ls-files | grep -E '(^|/)\.env|(^|/)credentials$|\.pem$|\.bsdesign$|(^|/)\.aws/' | grep -v -E '(^|/)\.env\.example$' || true)
 if [ -n "$BADFILES" ]; then
   echo "FAIL  forbidden files tracked"
   echo "$BADFILES"
