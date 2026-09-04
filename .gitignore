@@ -19,3 +19,11 @@ credentials
 .vscode/
 .idea/
 *.swp
+
+# committed template for the env file above (NFR-9: placeholders only)
+!.env.example
+
+# Lambda build artefacts (infra/contact) — the zip is rebuilt from source
+infra/contact/node_modules/
+infra/contact/build/
+infra/contact/function.zip

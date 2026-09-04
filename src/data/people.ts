@@ -25,6 +25,7 @@ export const people: Person[] = [
     title: 'Chief Executive Officer',
     portrait: '/assets/img/lynn-wright.jpg',
     line: 'Career defense intelligence professional with 35 years of experience.',
+    linkedin: 'https://www.linkedin.com/in/b-lynn-wright-86083452/',
   },
   {
     slug: 'tony-wright',
@@ -42,6 +43,7 @@ export const people: Person[] = [
     title: 'Chief Scientist',
     portrait: '/assets/img/greg-culkowski.jpg',
     line: '30+ years of technical leadership delivering COMSAT, network, and IT solutions.',
+    linkedin: 'https://www.linkedin.com/in/greg-culkowski-2283514/',
   },
 ];
 
