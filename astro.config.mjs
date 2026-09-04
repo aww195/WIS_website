@@ -17,8 +17,14 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      // Keep the error page out of the index.
-      filter: (page) => !page.endsWith('/404/') && !page.endsWith('/404'),
+      // Keep the error page and the two PDF-view routes out of the index.
+      // The PDF-view pages are noindex (WO-4 §3): their parent HTML pages
+      // are the indexable surface.
+      filter: (page) =>
+        !page.endsWith('/404/') &&
+        !page.endsWith('/404') &&
+        !page.endsWith('/capabilities/pdf/') &&
+        !page.endsWith('/people/tony-wright/resume/'),
     }),
   ],
 });

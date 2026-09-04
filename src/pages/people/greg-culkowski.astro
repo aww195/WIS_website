@@ -1,0 +1,33 @@
+---
+// Greg Culkowski — Chief Scientist.
+//
+// Bio is the prior site's, verbatim, retitled (the prior site called him
+// CTO — that was the drift WO-1 recorded as Q-1; owner ruling 3 Sep). One
+// factual line from his LinkedIn: Founder and CTO of Acquisition Labs, LLC.
+// SRS C-3 permits his employer's name in his own bio and nowhere else —
+// scripts/preflight.sh excludes this one file from the brand scan for that
+// reason. No engagement claims for WIS beyond standing.
+import PersonLayout from '../../layouts/PersonLayout.astro';
+import { bySlug } from '../../data/people';
+
+const person = bySlug('greg-culkowski');
+---
+<PersonLayout
+  person={person}
+  description={`${person.name}, ${person.title} at Wright Intel Solutions, LLC — 30+ years of technical leadership in COMSAT, network, IT, remote sensing, and RF geolocation.`}
+>
+  <p>
+    Greg has 30+ years of technical leadership delivering COMSAT, Network,
+    and IT solutions to Industry, Government, and international customers.
+    World-leading expertise in deploying enterprise global cloud data
+    architectures, including edge node integrations.
+  </p>
+  <p>
+    Greg also has extensive subject matter expertise in multi-phenomenology
+    remote sensing, Digital Signal Processing, and RF Geolocation of complex
+    signals.
+  </p>
+  <p>
+    Greg is the Founder and CTO of Acquisition Labs, LLC.
+  </p>
+</PersonLayout>

@@ -1,11 +1,109 @@
 ---
-// Landing. M3 renders shared chrome and the H1 only — real content is M4
-// (WO-3 H-5: no placeholder prose, no "coming soon", no invented copy).
+// Home (WO-4 §4). Hero slot · statement of purpose · what WIS does ·
+// UEI + WOSB with the SBA verification link.
+//
+// Copy is the prior site's Statement of Purpose (content inventory rows
+// C-03 / C-04) with its grammar slips fixed and the long sentences split,
+// plus the third paragraph of the firm's LinkedIn "About" (owner-supplied,
+// 3 Sep). The "former IC Senior Executives" framing stays plural — owner
+// ruling, 3 Sep. The prior site's third paragraph (row C-05) is not carried:
+// its certification claims are not publishable under C-4 / H-4.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import UeiCopy from '../components/UeiCopy.astro';
+import { UEI, SBA_SEARCH } from '../data/site';
 ---
 <BaseLayout
   title="Home"
-  description="Wright Intel Solutions, LLC is a woman-owned small business of former Intelligence Community senior executives advising clients on engagements with US government agencies."
+  description="Wright Intel Solutions, LLC is a woman-owned small business of former Intelligence Community senior executives helping clients succeed with US government agencies and commercial markets."
 >
-  <h1 class="text-3xl sm:text-4xl">Wright Intel Solutions, LLC</h1>
+  <Hero>
+    <p class="hero-lede">
+      Former Intelligence Community senior executives who improve our clients'
+      likelihood of success with government agencies — and with the
+      commercial markets that new capabilities open up.
+    </p>
+  </Hero>
+
+  <section class="home-section" aria-labelledby="purpose">
+    <h2 id="purpose" class="home-h2">Statement of purpose</h2>
+    <p>
+      Wright Intel Solutions, LLC (WIS) is comprised of former Intelligence
+      Community (IC) Senior Executives with decades of practical, engineering,
+      and enterprise leadership experience. These senior experts have resolved
+      some of our Nation's toughest problems. WIS's purpose is to improve our
+      clients' likelihood of successful engagements with government agencies,
+      and of product innovation that increases market opportunities with
+      commercial entities.
+    </p>
+  </section>
+
+  <section class="home-section" aria-labelledby="what">
+    <h2 id="what" class="home-h2">What WIS does</h2>
+    <p>
+      Through a suite of scalable services — from strategic advisement and
+      operational support to collaborative project management and direct
+      labor contributions — WIS tailors its approach to the unique needs and
+      objectives of each client.
+    </p>
+    <p>
+      Whether it is navigating the complexities of government contracting,
+      enhancing commercial market share through a better understanding of DoD
+      or IC operations, or leveraging our networks for teaming and
+      introductions that build formidable partnerships, WIS is dedicated to
+      our clients' success as they bring new, innovative concepts to the
+      government and commercial markets.
+    </p>
+    <p>
+      Our commitment extends beyond consultancy. We foster a true partnership
+      between the dynamic innovation of commercial, data-driven startups and
+      the structured demands of government entities — championing the best
+      interests of both, and working to bring cutting-edge, data-centric
+      solutions to the government sector.
+    </p>
+  </section>
+
+  <section class="home-section home-registry" aria-labelledby="registry">
+    <h2 id="registry" class="home-h2">Registrations and certifications</h2>
+    <dl class="registry">
+      <div class="registry-row">
+        <dt class="font-mono">SAM.gov</dt>
+        <dd>Registered — <UeiCopy uei={UEI} /></dd>
+      </div>
+      <div class="registry-row">
+        <dt class="font-mono">SBA</dt>
+        <dd>
+          Woman-Owned Small Business (WOSB) —{' '}
+          <a href={SBA_SEARCH} target="_blank" rel="noopener">verify at SBA's certification search</a>
+        </dd>
+      </div>
+    </dl>
+    <p class="registry-more">
+      Full company data, core competencies, and NAICS codes are on the{' '}
+      <a href="/capabilities/">Capabilities</a> page.
+    </p>
+  </section>
 </BaseLayout>
+
+<style>
+  .hero-lede {
+    margin: 1.25rem 0 0; max-width: 34rem;
+    font-size: 1.05rem; line-height: 1.6; color: var(--muted);
+  }
+  .home-section { margin-top: 2.75rem; }
+  .home-section p { max-width: 68ch; line-height: 1.65; margin: 0 0 1rem; }
+  .home-h2 {
+    font-family: 'Source Serif 4', Georgia, serif; font-weight: 600;
+    font-size: 1.35rem; margin: 0 0 0.75rem; color: var(--ink);
+  }
+  .registry { margin: 0; display: grid; gap: 0.6rem; max-width: 68ch; }
+  .registry-row {
+    display: grid; grid-template-columns: 6rem 1fr; gap: 0.75rem; align-items: baseline;
+    padding: 0.75rem 1rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface);
+  }
+  @media (max-width: 480px) { .registry-row { grid-template-columns: 1fr; gap: 0.25rem; } }
+  .registry-row dt { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .registry-row dd { margin: 0; line-height: 1.5; }
+  .registry a, .registry-more a { color: var(--accent); }
+  .registry-more { font-size: 0.9rem; color: var(--muted); margin-top: 1rem; }
+</style>

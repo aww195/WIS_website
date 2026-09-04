@@ -1,0 +1,92 @@
+---
+// PersonLayout — one person page. Portrait, name, title, LinkedIn link,
+// then the page's own content in the slot (bio, media, credentials).
+//
+// Portrait alt is descriptive only ("Portrait of …") — never bio text
+// (FR-META.5). The prior site used alt attributes as content fields and
+// several were full biographies; that pattern ends here.
+import BaseLayout from './BaseLayout.astro';
+import type { Person } from '../data/people';
+
+interface Props {
+  person: Person;
+  description: string;
+}
+
+const { person, description } = Astro.props;
+---
+<BaseLayout title={`${person.name} — ${person.title}`} description={description} activePath={`/people/${person.slug}/`}>
+  <nav class="person-back font-mono" aria-label="Breadcrumb">
+    <a href="/people/">← People</a>
+  </nav>
+
+  <header class="person-header">
+    <img
+      src={person.portrait}
+      alt={`Portrait of ${person.name}`}
+      width="160" height="160"
+      class="person-portrait"
+      decoding="async"
+    />
+    <div>
+      <h1 class="text-3xl sm:text-4xl">{person.name}</h1>
+      <p class="person-title font-mono">{person.title}</p>
+      {person.linkedin && (
+        <a href={person.linkedin} target="_blank" rel="noopener" class="person-linkedin">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+            <rect width="4" height="12" x="2" y="9"/>
+            <circle cx="4" cy="4" r="2"/>
+          </svg>
+          {person.name} on LinkedIn
+        </a>
+      )}
+    </div>
+  </header>
+
+  <div class="person-body">
+    <slot />
+  </div>
+</BaseLayout>
+
+<style>
+  .person-back { font-size: 0.75rem; margin-bottom: 1rem; }
+  .person-back a { color: var(--muted); text-decoration: none; }
+  .person-back a:hover { color: var(--accent); }
+
+  .person-header {
+    display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .person-portrait {
+    width: 160px; height: 160px; object-fit: cover; border-radius: 50%;
+    border: 1px solid var(--rule); background: var(--surface); flex: none;
+  }
+  @media (max-width: 640px) {
+    .person-portrait { width: 120px; height: 120px; }
+  }
+  .person-title {
+    margin: 0.5rem 0 0; font-size: 0.85rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .person-linkedin {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    margin-top: 0.75rem; font-size: 0.8rem;
+    color: var(--muted); text-decoration: none;
+    border-bottom: 1px dotted color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .person-linkedin:hover, .person-linkedin:focus-visible { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Bio prose. Scoped through :global because the slot content belongs
+     to the page, not this layout. */
+  .person-body :global(p) { max-width: 68ch; line-height: 1.65; margin: 0 0 1rem; }
+  .person-body :global(h2) {
+    font-family: 'Source Serif 4', Georgia, serif; font-weight: 600;
+    font-size: 1.25rem; margin: 2.25rem 0 0.75rem; color: var(--ink);
+  }
+  .person-body :global(ul) { max-width: 68ch; line-height: 1.6; margin: 0 0 1rem; padding-left: 1.25rem; }
+  .person-body :global(li) { margin: 0.25rem 0; }
+  .person-body :global(a) { color: var(--accent); }
+  .person-body :global(.note) { font-size: 0.85rem; color: var(--muted); }
+</style>

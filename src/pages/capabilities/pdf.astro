@@ -1,0 +1,12 @@
+---
+// /capabilities/pdf/ — the capability statement in the frame (WO-4 §3).
+import PdfViewLayout from '../../layouts/PdfViewLayout.astro';
+import { CAPABILITY_PDF } from '../../data/site';
+---
+<PdfViewLayout
+  title="Capability Statement"
+  description="The Wright Intel Solutions, LLC capability statement as a PDF, with a download button."
+  pdfPath={CAPABILITY_PDF}
+  downloadName="WIS_Capability_Statement.pdf"
+  backTo={{ href: '/capabilities/', label: 'Capabilities' }}
+/>

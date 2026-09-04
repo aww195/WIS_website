@@ -1,0 +1,192 @@
+---
+// Capabilities (WO-4 §5). The current capability statement (3 Sep 2026)
+// authored as HTML — the prior site delivered it as one flattened image,
+// invisible to search and to screen readers.
+//
+// Mirrors the PDF with three reflow typos fixed. The "Accept Government
+// P-Cards" row is deliberately omitted: its value on the PDF is status
+// language of the kind C-4 forbids on the site.
+//
+// DOWNLOAD goes to the PDF-view route, which carries the file itself.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import UeiCopy from '../../components/UeiCopy.astro';
+import ContactLine from '../../components/ContactLine.astro';
+import { UEI, SBA_SEARCH, LOCATION } from '../../data/site';
+
+const companyData: Array<[string, string]> = [
+  ['SAM Registration', 'Active'],
+  ['Disaster Response Registry', 'No'],
+  ['Service Area', 'Washington, DC, Metro'],
+  ['Size Standard', 'SB — Small Business'],
+  ['State & Federal Diversities', 'Woman-Owned Small Business (WOSB)'],
+];
+
+const naics: Array<[string, string]> = [
+  ['541618', 'Other Management Consulting Services'],
+  ['334511', 'Search, Detection, Navigation, Guidance, Aeronautical, and Nautical System and Instrument Manufacturing'],
+  ['517410', 'Satellite Telecommunications'],
+  ['518210', 'Computing Infrastructure Providers, Data Processing, Web Hosting, and Related Services'],
+  ['541330', 'Engineering Services'],
+  ['541490', 'Other Specialized Design Services'],
+  ['541511', 'Custom Computer Programming Services'],
+  ['541512', 'Computer Systems Design Services'],
+  ['541611', 'Administrative Management and General Management Consulting Services'],
+  ['541612', 'Human Resources Consulting Services'],
+  ['541614', 'Process, Physical Distribution, and Logistics Consulting Services'],
+  ['541690', 'Other Scientific and Technical Consulting Services'],
+  ['541715', 'R&D in the Physical, Engineering, and Life Sciences (except Nano & Biotechnology)'],
+  ['611420', 'Computer Training'],
+  ['611430', 'Professional and Management Development Training'],
+  ['813920', 'Professional Organizations'],
+];
+---
+<BaseLayout
+  title="Capabilities"
+  description="Capability statement for Wright Intel Solutions, LLC: company data, UEI, WOSB status, core competencies, differentiators, and NAICS codes."
+>
+  <div class="cap-head">
+    <h1 class="text-3xl sm:text-4xl">Capabilities</h1>
+    <a href="/capabilities/pdf/" class="cap-download">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
+      </svg>
+      DOWNLOAD
+      <span class="cap-download-name">Capability Statement (PDF)</span>
+    </a>
+  </div>
+
+  <section class="cap-section" aria-labelledby="company-data">
+    <h2 id="company-data" class="cap-h2">Company Data</h2>
+    <dl class="cap-data">
+      <div class="cap-data-row">
+        <dt>Unique Entity ID (UEI)</dt>
+        <dd><UeiCopy uei={UEI} showLabel={false} /></dd>
+      </div>
+      {companyData.map(([k, v]) => (
+        <div class="cap-data-row">
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </div>
+      ))}
+    </dl>
+    <p class="cap-verify">
+      WOSB status can be verified at{' '}
+      <a href={SBA_SEARCH} target="_blank" rel="noopener">SBA's certification search</a> using the UEI above.
+    </p>
+  </section>
+
+  <section class="cap-section" aria-labelledby="company-bio">
+    <h2 id="company-bio" class="cap-h2">Company Bio</h2>
+    <p>
+      Wright Intel Solutions, LLC (WIS) was established to address the critical
+      need for integrating emerging, data-focused technologies into government
+      operations, thereby enhancing the United States' strategic global
+      position. At the forefront is CEO Lynn Wright, whose 35-year tenure in
+      defense intelligence, including a significant role as Director of Naval
+      Intelligence, equips WIS with unparalleled leadership in navigating the
+      complexities of government and technology intersections. Alongside a
+      Chief Scientist with deep expertise from NSA and NRO engagements, and a
+      team skilled in technology and organizational development, WIS is adept
+      at fostering collaborations between innovative tech companies and
+      government entities. This ensures the seamless introduction of advanced
+      technologies into national security and intelligence operations,
+      bridging the "valley of death" for startups aiming to contribute to
+      government capabilities.
+    </p>
+  </section>
+
+  <section class="cap-section" aria-labelledby="core">
+    <h2 id="core" class="cap-h2">Core Competencies</h2>
+    <p>
+      Wright Intel Solutions, LLC (WIS) enables the effective bridging of
+      technological innovation with government operational needs. With a
+      leadership team experienced in high-level defense intelligence and
+      technology integration, WIS excels in strategic planning, programmatic
+      execution, and the adoption of new technologies within intelligence
+      operations. Key areas of expertise include:
+    </p>
+    <ul class="cap-list">
+      <li><strong>Product Alignment</strong> — aligning companies' existing product lines with government needs.</li>
+      <li><strong>Teaming Partner Strategy</strong> — identifying and facilitating partnerships with complementary companies.</li>
+      <li><strong>Systems and Data Architectures</strong> — geolocation, multi-sensor integration, and data fusion.</li>
+    </ul>
+  </section>
+
+  <section class="cap-section" aria-labelledby="diff">
+    <h2 id="diff" class="cap-h2">Differentiators</h2>
+    <p>
+      Wright Intel Solutions, LLC (WIS) stands out as a Woman-Owned Small
+      Business (WOSB), enhancing our eligibility for specific government
+      contracts and incentives. Our unique position enables us to offer
+      clients a competitive edge in securing government contracts, supported
+      by our deep understanding of the defense and intelligence sectors.
+    </p>
+  </section>
+
+  <section class="cap-section" aria-labelledby="naics">
+    <h2 id="naics" class="cap-h2">NAICS Codes</h2>
+    <div class="cap-table-wrap">
+      <table class="cap-table">
+        <thead>
+          <tr><th scope="col">Code</th><th scope="col">Description</th></tr>
+        </thead>
+        <tbody>
+          {naics.map(([code, desc]) => (
+            <tr><td class="font-mono">{code}</td><td>{desc}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="cap-section cap-contact" aria-labelledby="cap-contact-h">
+    <h2 id="cap-contact-h" class="cap-h2">Contact</h2>
+    <p class="font-mono cap-contact-who">Anthony Wright · {LOCATION}</p>
+    <ContactLine />
+  </section>
+</BaseLayout>
+
+<style>
+  .cap-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+  .cap-download {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: var(--accent); color: var(--surface);
+    border-radius: 4px; text-decoration: none;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.8rem; letter-spacing: 0.08em;
+  }
+  .cap-download:hover, .cap-download:focus-visible { filter: brightness(1.12); }
+  .cap-download-name { opacity: 0.8; letter-spacing: 0; font-size: 0.72rem; }
+
+  .cap-section { margin-top: 2.5rem; }
+  .cap-section p { max-width: 72ch; line-height: 1.65; margin: 0 0 1rem; }
+  .cap-h2 {
+    font-family: 'Source Serif 4', Georgia, serif; font-weight: 600;
+    font-size: 1.35rem; margin: 0 0 0.75rem; color: var(--ink);
+  }
+  .cap-list { max-width: 72ch; line-height: 1.6; padding-left: 1.25rem; margin: 0; }
+  .cap-list li { margin: 0.35rem 0; }
+
+  .cap-data { margin: 0; display: grid; max-width: 44rem; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+  .cap-data-row {
+    display: grid; grid-template-columns: 15rem 1fr; gap: 0.75rem; align-items: baseline;
+    padding: 0.6rem 1rem; border-bottom: 1px solid var(--rule);
+  }
+  .cap-data-row:last-child { border-bottom: 0; }
+  .cap-data-row dt { font-size: 0.8rem; color: var(--muted); }
+  .cap-data-row dd { margin: 0; }
+  @media (max-width: 560px) { .cap-data-row { grid-template-columns: 1fr; gap: 0.15rem; } }
+  .cap-verify { font-size: 0.9rem; color: var(--muted); margin-top: 0.75rem; }
+  .cap-verify a, .cap-contact a { color: var(--accent); }
+
+  /* Wide tables scroll inside their own box; the page never scrolls sideways. */
+  .cap-table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+  .cap-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .cap-table th, .cap-table td { text-align: left; padding: 0.5rem 0.85rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .cap-table th { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .cap-table tbody tr:last-child td { border-bottom: 0; }
+  .cap-table td.font-mono { white-space: nowrap; }
+  .cap-contact-who { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+</style>

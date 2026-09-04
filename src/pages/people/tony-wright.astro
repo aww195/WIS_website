@@ -1,43 +1,98 @@
 ---
-// Person page.
+// Tony Wright — Chief Technology Officer.
 //
-// Title is asserted here: Chief Technology Officer. This resolves the
-// conflict WO-1 recorded as Q-1 — the prior site published CTO against a
-// different person, and the owner has ruled that the live site moves that
-// person to Chief Scientist. Nothing on this site asserts a title for
-// anyone else yet, so there is no remaining collision.
-//
-// ProjectsBlock is mounted with zero items to exercise the A-4 gate: below
-// the two-item threshold it must render nothing at all — no wrapper, no
-// heading, no whitespace artifact. Verified in the built HTML.
-import BaseLayout from '../../layouts/BaseLayout.astro';
+// Bio is his LinkedIn "About" plus the Wright Intel Solutions experience
+// entry (owner-supplied LinkedIn text, harvest/linkedin/LinkedIn_Notes.txt,
+// 3 Sep 2026). PMP and PMI-ACP badges. Résumé link goes to the PDF-view
+// route. ProjectsBlock stays mounted with zero items — the A-4 gate must
+// still render nothing (WO-4 §7).
+import PersonLayout from '../../layouts/PersonLayout.astro';
 import ProjectsBlock from '../../components/ProjectsBlock.astro';
+import { bySlug } from '../../data/people';
 
-const NAME = 'Tony Wright';
-const TITLE = 'Chief Technology Officer';
+const person = bySlug('tony-wright');
 ---
-<BaseLayout
-  title={NAME}
-  description={`${NAME}, ${TITLE} at Wright Intel Solutions, LLC — program management across military, government acquisition, and commercial contexts.`}
+<PersonLayout
+  person={person}
+  description={`${person.name}, ${person.title} at Wright Intel Solutions, LLC — program and operations leader, PMP and PMI-ACP certified, former Naval Aviator.`}
 >
-  <header class="person-header">
-    <h1 class="text-3xl sm:text-4xl">{NAME}</h1>
-    <p class="person-title font-mono">{TITLE}</p>
-  </header>
+  <p>
+    Program and operations leader who runs the seam between customers,
+    production floors, and software teams. Doubled manufacturing productivity
+    to a $12M benchmark; led international production, procurement, and 24/7
+    customer-support operations; Product Owner for six major software
+    programs. PMP and PMI-ACP certified, M.A. in Organizational Management,
+    hands-on data skills (Python, SQL, ETL).
+  </p>
+  <p>
+    Check Instructor and FAA Gold Seal CFI at Northern Virginia's largest
+    Part 141 flight school. ATP, A320 type rated. 2026 AOPA Distinguished
+    Flight Instructor. 20+ students graduated at a 100% first-attempt pass
+    rate; almost 1,000 hours flown in 18 months across the syllabi.
+  </p>
+  <p>
+    Reputation for making the most of a student's time and money — and for
+    going further than the syllabus requires. Authored the school's complete
+    Part 141 Multi-Engine Instructor curriculum with full FAA compliance and
+    record-keeping backend. Currently developing an Upset Recovery /
+    Out-of-Controlled-Flight course on the school's new 1,100hp Shorts S312
+    Tucano T Mk 1 turboprop.
+  </p>
+
+  <h2>At Wright Intel Solutions</h2>
+  <p>
+    Lead Wright Intel Solutions' IT and telecommunications infrastructure,
+    ensuring robust security measures that keep us ahead of the curve. With a
+    keen focus on innovation, also developing an integrated client research
+    pipeline leveraging agentic swarms, enhancing our ability to deliver
+    cutting-edge solutions.
+  </p>
+  <p>
+    Supports business development with a focus on crafting quality proposals
+    for government contracts. Employs data-driven strategies to target new
+    opportunities, while ensuring our submissions meet all federal
+    guidelines. Conducts the capture process including teaming arrangements,
+    and the proposal build through Jira and constant, effective communication
+    with the writing teams.
+  </p>
+
+  <h2>Credentials</h2>
+  <ul class="badges" aria-label="Certifications">
+    <li class="badge">
+      <img src="/assets/img/pmp.png" alt="Project Management Professional (PMP) badge" width="72" height="72" loading="lazy" decoding="async" />
+      <span>Project Management Professional (PMP)</span>
+    </li>
+    <li class="badge">
+      <img src="/assets/img/pmi-acp.png" alt="PMI Agile Certified Practitioner (PMI-ACP) badge" width="72" height="72" loading="lazy" decoding="async" />
+      <span>PMI Agile Certified Practitioner (PMI-ACP)</span>
+    </li>
+  </ul>
+
+  <p class="resume-line">
+    <a href="/people/tony-wright/resume/" class="resume-link">
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
+      </svg>
+      Résumé (PDF)
+    </a>
+  </p>
 
   <ProjectsBlock items={[]} />
-</BaseLayout>
+</PersonLayout>
 
 <style>
-  /* Name and title read as one unit, so the gap between them is tighter
-     than the layout's default block rhythm. */
-  .person-header { margin-bottom: 0; }
+  .badges { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; max-width: none; }
+  .badge { display: inline-flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 0.9rem; }
+  .badge img { width: 72px; height: 72px; flex: none; }
 
-  .person-title {
-    margin: 0.5rem 0 0;
-    font-size: 0.85rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
+  .resume-line { margin-top: 1.5rem; }
+  .resume-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--accent); border-radius: 4px;
+    color: var(--accent); text-decoration: none;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8rem;
   }
+  .resume-link:hover, .resume-link:focus-visible { background: var(--accent); color: var(--surface); }
 </style>

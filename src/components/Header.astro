@@ -1,20 +1,18 @@
 ---
-// Header — shared chrome, identical on every route.
+// Header — shared chrome, identical on every route. Revised to the 3 Sep
+// spec (WO-4 §2.1):
 //
-// Wordmark string is exact per C-2: "Wright Intel Solutions, LLC".
-// Nav: Capabilities · People · Contact · Reps & Certs (disclosure).
+//   [WIS icon] Wright Intel Solutions, LLC     Reps & Certs ▾  People ▾  Contact
 //
-// The Reps & Certs dropdown is built on <details>/<summary> rather than a
-// JS menu. There is no dropdown in the aww195 sibling to fork, and the
-// native disclosure is keyboard-operable, screen-reader-announced, and
-// works with JS disabled — which matters for a menu whose whole job is
-// pointing at verification sources. The only script is a click-outside
-// and Escape close, both progressive enhancements.
-//
-// Grid band + sub-640px stacking are ported from the sibling's Header.
-// The sibling's theme-toggle switch is deliberately NOT ported (M3 follows
-// prefers-color-scheme only; a visible toggle is an owner decision).
+// Both dropdowns are <details>/<summary> disclosures — keyboard-native,
+// announced by screen readers, working with JS off. The only script is a
+// click-outside / Escape close, and "only one open at a time", all
+// progressive enhancement. Below 640px the panels drop into normal flow
+// and claim the whole row (the WO-3 addendum bug class — the flex item is
+// the <li>, so the <li> is what takes flex-basis: 100%).
 import UeiCopy from './UeiCopy.astro';
+import { people, href as personHref } from '../data/people';
+import { UEI, SBA_SEARCH } from '../data/site';
 
 interface Props {
   activePath: string;
@@ -22,73 +20,75 @@ interface Props {
 
 const { activePath } = Astro.props;
 
-// Capabilities has no page of its own — the Reps & Certs disclosure below
-// carries it, in two rows: the capability statement itself, and the SBA
-// verification route with the UEI ready to copy into SBA's search.
-const navItems = [
-  { href: '/people/',  label: 'People' },
-  { href: '/contact/', label: 'Contact' },
-];
-
-// SAM.gov Unique Entity ID — public registry data, verifiable by anyone.
-const UEI = 'ZWA5GLBFS9A5';
-const SBA_SEARCH = 'https://search.certifications.sba.gov/';
-const CAPABILITY_PDF = '/assets/img/WIS_Capability_Statement.pdf';
-
 // Normalise so a trailing slash never breaks the active-state match.
 const norm = (p: string) => (p.endsWith('/') ? p : p + '/');
 const active = norm(activePath);
+const isUnder = (prefix: string) => active.startsWith(norm(prefix));
 ---
 
 <header class="border-b border-rule bg-surface">
-  <div class="header-grid w-full max-w-5xl mx-auto px-5 py-4 sm:px-6">
-    <a href="/" class="header-brand font-display text-lg sm:text-xl text-ink no-underline">
-      Wright Intel Solutions, LLC
+  <div class="header-grid w-full max-w-5xl mx-auto px-5 py-3 sm:px-6">
+    <a href="/" class="header-brand no-underline" aria-label="Wright Intel Solutions, LLC — home">
+      <img src="/assets/img/wis-icon-80.png" alt="" width="40" height="40" class="header-icon" decoding="async" />
+      <span class="font-display text-lg sm:text-xl text-ink">Wright Intel Solutions, LLC</span>
     </a>
 
     <nav class="header-nav font-prose text-sm" aria-label="Primary">
       <ul class="nav-list">
-        {navItems.map((item) => {
-          const isActive = active === norm(item.href);
-          return (
-            <li>
-              <a
-                href={item.href}
-                aria-current={isActive ? 'page' : undefined}
-                class={isActive ? 'nav-link is-active' : 'nav-link'}
-              >
-                {item.label}
-              </a>
-            </li>
-          );
-        })}
-        <li class="nav-item-repcerts">
-          <details class="repcerts">
-            <summary class="nav-link repcerts-summary">
+        {/* Reps & Certs — Capabilities page, and WOSB verification at SBA. */}
+        <li class="nav-item-menu">
+          <details class="menu" data-menu>
+            <summary class={isUnder('/capabilities/') ? 'nav-link menu-summary is-active' : 'nav-link menu-summary'}>
               Reps &amp; Certs
-              <svg class="repcerts-caret" viewBox="0 0 12 8" aria-hidden="true" focusable="false">
+              <svg class="menu-caret" viewBox="0 0 12 8" aria-hidden="true" focusable="false">
                 <path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6"
                       stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </summary>
-            <div class="repcerts-panel">
-              {/* Row 1 — the capability statement itself. */}
-              <a class="repcerts-item" href={CAPABILITY_PDF}>
-                Capability Statement (PDF)
+            <div class="menu-panel">
+              <a class="menu-item" href="/capabilities/" aria-current={isUnder('/capabilities/') ? 'page' : undefined}>
+                Capabilities
               </a>
-
-              {/* Row 2 — verification at the source. SBA's search takes a
-                  UEI, so the UEI sits right here ready to copy rather than
-                  making someone hunt for it on another page. */}
-              <div class="repcerts-item repcerts-verify">
-                <a href={SBA_SEARCH} target="_blank" rel="noopener">
-                  Verify WOSB at SBA — search by UEI
-                </a>
+              <div class="menu-item menu-verify">
+                <a href={SBA_SEARCH} target="_blank" rel="noopener">WOSB Certification — verify at SBA</a>
                 <UeiCopy uei={UEI} />
-                <span class="repcerts-hint">Copy, then paste into SBA's search</span>
+                <span class="menu-hint">Copy the UEI, then paste it into SBA's search</span>
               </div>
             </div>
           </details>
+        </li>
+
+        {/* People — the label itself goes to the roster; the panel lists each person. */}
+        <li class="nav-item-menu">
+          <details class="menu" data-menu>
+            <summary class={isUnder('/people/') ? 'nav-link menu-summary is-active' : 'nav-link menu-summary'}>
+              People
+              <svg class="menu-caret" viewBox="0 0 12 8" aria-hidden="true" focusable="false">
+                <path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </summary>
+            <div class="menu-panel">
+              <a class="menu-item" href="/people/" aria-current={active === '/people/' ? 'page' : undefined}>
+                All people
+              </a>
+              {people.map((p) => (
+                <a class="menu-item" href={personHref(p)} aria-current={active === personHref(p) ? 'page' : undefined}>
+                  <span class="menu-role font-mono">{p.short}</span> — {p.name}
+                </a>
+              ))}
+            </div>
+          </details>
+        </li>
+
+        <li>
+          <a
+            href="/contact/"
+            aria-current={active === '/contact/' ? 'page' : undefined}
+            class={active === '/contact/' ? 'nav-link is-active' : 'nav-link'}
+          >
+            Contact
+          </a>
         </li>
       </ul>
     </nav>
@@ -96,31 +96,31 @@ const active = norm(activePath);
 </header>
 
 <style>
-  /* Two logical cells: brand left, nav right. Below 640px they stack,
-     which is what keeps a four-item nav from overflowing at 390px. */
   .header-grid {
     display: grid;
     grid-template-columns: 1fr auto;
     column-gap: 1.5rem;
-    row-gap: 0.75rem;
+    row-gap: 0.6rem;
     align-items: center;
   }
-  .header-brand { grid-column: 1; grid-row: 1; justify-self: start; }
-  .header-nav   { grid-column: 2; grid-row: 1; justify-self: end; }
+  .header-brand {
+    grid-column: 1; grid-row: 1; justify-self: start;
+    display: inline-flex; align-items: center; gap: 0.65rem;
+    text-decoration: none;
+  }
+  .header-icon { width: 40px; height: 40px; border-radius: 6px; flex: none; }
+  .header-nav { grid-column: 2; grid-row: 1; justify-self: end; }
 
   @media (max-width: 640px) {
     .header-grid { grid-template-columns: 1fr; }
-    .header-brand { grid-column: 1; grid-row: 1; justify-self: start; }
-    .header-nav   { grid-column: 1; grid-row: 2; justify-self: start; }
+    .header-brand { grid-row: 1; }
+    .header-nav   { grid-column: 1; grid-row: 2; justify-self: start; width: 100%; }
+    .header-icon { width: 32px; height: 32px; }
   }
 
   .nav-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-wrap: wrap; align-items: center;
     gap: 0.5rem 1.25rem;
   }
 
@@ -132,42 +132,20 @@ const active = norm(activePath);
     white-space: nowrap;
   }
   .nav-link:hover { color: var(--accent); }
-  .nav-link.is-active {
-    color: var(--ink);
-    border-bottom-color: var(--signal);
+  .nav-link.is-active { color: var(--ink); border-bottom-color: var(--signal); }
+
+  .menu { position: relative; }
+  .menu-summary {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    cursor: pointer; list-style: none;
   }
+  .menu-summary::-webkit-details-marker { display: none; }
+  .menu-caret { width: 0.6rem; height: 0.4rem; transition: transform 150ms ease-out; }
+  .menu[open] .menu-caret { transform: rotate(180deg); }
+  @media (prefers-reduced-motion: reduce) { .menu-caret { transition: none; } }
 
-  /* Disclosure. The panel is absolutely positioned on wide viewports so
-     it overlays content; below 640px it becomes a normal block in flow,
-     because an overlay panel anchored to a stacked nav has nowhere to go
-     on a 390px screen without clipping. */
-  .repcerts { position: relative; }
-
-  .repcerts-summary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    cursor: pointer;
-    list-style: none;
-  }
-  .repcerts-summary::-webkit-details-marker { display: none; }
-
-  .repcerts-caret {
-    width: 0.6rem;
-    height: 0.4rem;
-    transition: transform 150ms ease-out;
-  }
-  .repcerts[open] .repcerts-caret { transform: rotate(180deg); }
-
-  @media (prefers-reduced-motion: reduce) {
-    .repcerts-caret { transition: none; }
-  }
-
-  .repcerts-panel {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 0.5rem);
-    z-index: 20;
+  .menu-panel {
+    position: absolute; right: 0; top: calc(100% + 0.5rem); z-index: 20;
     min-width: 17rem;
     background: var(--surface);
     border: 1px solid var(--rule);
@@ -175,83 +153,57 @@ const active = norm(activePath);
     box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.35);
     padding: 0.35rem 0;
   }
-
-  .repcerts-item {
-    display: block;
-    padding: 0.5rem 0.85rem;
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.85rem;
-    line-height: 1.4;
+  .menu-item {
+    display: block; padding: 0.5rem 0.85rem;
+    color: var(--muted); text-decoration: none;
+    font-size: 0.85rem; line-height: 1.4; white-space: nowrap;
   }
-  a.repcerts-item:hover { color: var(--accent); background: var(--ground); }
+  a.menu-item:hover { color: var(--accent); background: var(--ground); }
+  a.menu-item[aria-current="page"] { color: var(--ink); }
+  .menu-role { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  .repcerts-verify {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    border-top: 1px solid var(--rule);
-    margin-top: 0.35rem;
-    padding-top: 0.6rem;
+  .menu-verify {
+    display: flex; flex-direction: column; gap: 0.3rem;
+    border-top: 1px solid var(--rule); margin-top: 0.35rem; padding-top: 0.6rem;
+    white-space: normal;
   }
-  .repcerts-verify a { color: var(--muted); text-decoration: none; }
-  .repcerts-verify a:hover { color: var(--accent); }
+  .menu-verify a { color: var(--muted); text-decoration: none; }
+  .menu-verify a:hover { color: var(--accent); }
+  .menu-hint { font-size: 0.68rem; color: color-mix(in srgb, var(--muted) 80%, transparent); line-height: 1.3; }
 
-  .repcerts-hint {
-    font-size: 0.68rem;
-    color: color-mix(in srgb, var(--muted) 80%, transparent);
-    line-height: 1.3;
-  }
-
-  /* Below 640px the panel drops into normal flow rather than overlaying —
-     an absolutely-positioned panel anchored to a stacked nav has nowhere
-     to go on a 390px screen without clipping.
-
-     In flow it must also give up its min-width and take the full row.
-     Leaving `min-width: 17rem` on a static panel inside a wrapping flex
-     list pushes it past the content box and scrolls the page sideways
-     (NFR-5). The disclosure therefore claims the whole row, and the panel
-     fills it. */
+  /* Below 640px: panels in flow, full row (see the header comment). */
   @media (max-width: 640px) {
-    /* The flex item is the <li>, not the <details> inside it — sizing the
-       details alone leaves the row as wide as its summary text, which
-       clips the panel. Claim the whole row on the list item. */
-    .nav-item-repcerts {
-      flex-basis: 100%;
-      width: 100%;
-    }
-
-    .repcerts { display: block; }
-
-    .repcerts-panel {
-      position: static;
-      min-width: 0;
-      width: 100%;
-      box-shadow: none;
-      margin-top: 0.4rem;
-    }
-
-    /* Long enough to wrap at this width; let it. */
-    .repcerts-verify a { white-space: normal; }
+    .nav-item-menu { flex-basis: 100%; width: 100%; }
+    .menu { display: block; }
+    .menu-panel { position: static; min-width: 0; width: 100%; box-shadow: none; margin-top: 0.4rem; }
+    .menu-item { white-space: normal; }
   }
 </style>
 
 <script>
-  // Progressive enhancement only — the disclosure works without this.
-  // Closes the panel on Escape and on a click outside it, which is the
-  // behaviour a pointer user expects from something menu-shaped.
-  const details = document.querySelector<HTMLDetailsElement>('.repcerts');
+  // Progressive enhancement only — the disclosures work without this.
+  const menus = Array.from(document.querySelectorAll<HTMLDetailsElement>('details[data-menu]'));
 
-  if (details) {
-    document.addEventListener('click', (event) => {
-      if (!details.open) return;
-      if (!details.contains(event.target as Node)) details.open = false;
+  menus.forEach((m) => {
+    // One open at a time: opening one closes the others.
+    m.addEventListener('toggle', () => {
+      if (!m.open) return;
+      menus.forEach((o) => { if (o !== m && o.open) o.open = false; });
     });
+  });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || !details.open) return;
-      details.open = false;
-      details.querySelector<HTMLElement>('summary')?.focus();
+  document.addEventListener('click', (event) => {
+    menus.forEach((m) => {
+      if (m.open && !m.contains(event.target as Node)) m.open = false;
     });
-  }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    menus.forEach((m) => {
+      if (!m.open) return;
+      m.open = false;
+      m.querySelector<HTMLElement>('summary')?.focus();
+    });
+  });
 </script>

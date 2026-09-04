@@ -1,0 +1,131 @@
+---
+// Lynn Wright — Chief Executive Officer.
+//
+// Bio is the prior site's, verbatim, except that the affiliations sentence
+// now mirrors her LinkedIn as of 3 Sep 2026 (WO-4 §4): current is Penn
+// State ARL; HawkEye 360 and Divergent Space are past and dated; Virginia
+// Tech NSI and Fortem no longer appear on LinkedIn and are dropped. Navy
+// wording is LinkedIn's — Deputy Director of Naval Intelligence 2013–2019,
+// Acting Director 2013–2016.
+//
+// Media cards: five, all verified live 3 Sep 2026. The 2022 Space Symposium
+// card has no image — the prior site used a third-party logo there (C-5).
+// The 2015 card's alt is corrected (the prior site said 2016 on both).
+import PersonLayout from '../../layouts/PersonLayout.astro';
+import { bySlug } from '../../data/people';
+
+const person = bySlug('lynn-wright');
+
+interface Media {
+  org: string;
+  when: string;
+  text: string;
+  href: string;
+  kind: 'Podcast' | 'Video' | 'Notes';
+  image?: string;
+  imageAlt?: string;
+}
+
+const media: Media[] = [
+  {
+    org: 'Space Symposium', when: '2022',
+    text: 'Space-Based Commercial Geospatial Intelligence and its Impact on Ukraine. Panel discussion from the Spring 2022 Space Symposium in Colorado Springs.',
+    href: 'https://www.podbean.com/media/share/pb-r3yc4-1286747', kind: 'Podcast',
+  },
+  {
+    org: 'HawkEye 360', when: '2021',
+    text: 'Critical for Law Enforcement: Stopping Cocaine Shipments with Commercial RF Data.',
+    href: 'https://www.youtube.com/watch?v=GBaIUCcU9YE', kind: 'Video',
+    image: '/assets/img/media-hawkeye-2021.jpg', imageAlt: 'Video title card for the HawkEye 360 interview with Lynn Wright, 2021',
+  },
+  {
+    org: 'SpyCast', when: 'December 2017',
+    text: 'SPY Historian Vince Houghton sat down with Lynn Wright, then-Deputy Director of Naval Intelligence and Head of the Naval Intelligence Activity.',
+    href: 'https://thecyberwire.com/podcasts/spycast/298/notes', kind: 'Podcast',
+    image: '/assets/img/media-spycast.jpg', imageAlt: 'SpyCast podcast artwork',
+  },
+  {
+    org: 'State of US Intel', when: '2016',
+    text: 'The Defense Enterprise View plenary session at the 2016 Intelligence and National Security Summit.',
+    href: 'https://www.youtube.com/watch?v=Iw2NSkgJluk', kind: 'Video',
+    image: '/assets/img/media-summit-2016.png', imageAlt: 'Panel photograph from the 2016 Intelligence and National Security Summit',
+  },
+  {
+    org: 'State of US Intel', when: '2015',
+    text: 'The Defense Enterprise View plenary session at the 2015 Intelligence and National Security Summit.',
+    href: 'https://www.youtube.com/watch?v=EL80_U7mcLA', kind: 'Video',
+    image: '/assets/img/media-summit-2015.png', imageAlt: 'Panel photograph from the 2015 Intelligence and National Security Summit',
+  },
+];
+---
+<PersonLayout
+  person={person}
+  description={`${person.name}, ${person.title} of Wright Intel Solutions, LLC — 35 years in defense intelligence, former Deputy Director of Naval Intelligence.`}
+>
+  <p>
+    Lynn Wright is the Chief Executive Officer (CEO) for Wright Intel
+    Solutions, LLC and the main substantive consultant. Since retiring from
+    the Navy's Senior Executive Service in late 2019, she has served as a
+    private consultant and advisory board member for a variety of academic and
+    national security technology firms. She is currently an advisory board
+    member for the Applied Research Laboratory at Penn State University. She
+    was previously the CEO for Naval Intelligence Professionals, a 501(c)(3)
+    non-profit established to advance Naval Intelligence skills and
+    capabilities.
+  </p>
+  <p>
+    With over 35 years of experience in Intelligence Community organizations
+    and operations from the national to the tactical, Ms. Wright has broad
+    experience with traditional military operations against peer competitors,
+    networked non-state actors and the incorporation of new commercial
+    technologies into intelligence operations. She served as Deputy Director
+    of Naval Intelligence in the Pentagon from 2013 to 2019, including an
+    extended period as Acting Director of Naval Intelligence (2013–2016), as
+    leader of the Joint Staff task force for Afghanistan/Pakistan intelligence
+    operations, and in Kabul as the chief for all Defense Intelligence Agency
+    operations in Afghanistan.
+  </p>
+
+  <h2>Affiliations</h2>
+  <ul>
+    <li>Advisory Board Member, The Applied Research Laboratory at Penn State University (February 2020 – present)</li>
+    <li>Chief Strategy Officer, Divergent Space Technologies, LLC (September 2024 – April 2025)</li>
+    <li>Advisory Board Member, HawkEye 360 (November 2020 – December 2024)</li>
+  </ul>
+
+  <h2>Talks and interviews</h2>
+  <ul class="media-list">
+    {media.map((m) => (
+      <li class="media-card">
+        {m.image && (
+          <img src={m.image} alt={m.imageAlt} class="media-image" loading="lazy" decoding="async" width="160" height="90" />
+        )}
+        <div class="media-body">
+          <p class="media-meta font-mono"><span>{m.org}</span> · <span>{m.when}</span> · <span>{m.kind}</span></p>
+          <p class="media-text">{m.text}</p>
+          <a href={m.href} target="_blank" rel="noopener" class="media-link">
+            {m.kind === 'Video' ? 'Watch' : m.kind === 'Podcast' ? 'Listen' : 'Read'} — {m.org}, {m.when}
+          </a>
+        </div>
+      </li>
+    ))}
+  </ul>
+</PersonLayout>
+
+<style>
+  .media-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.85rem; max-width: 100%; }
+  .media-card {
+    display: flex; gap: 1rem; align-items: flex-start;
+    border: 1px solid var(--rule); border-radius: 4px; background: var(--surface);
+    padding: 0.9rem 1rem; margin: 0;
+  }
+  .media-image { width: 160px; height: 90px; object-fit: cover; border-radius: 3px; flex: none; border: 1px solid var(--rule); }
+  @media (max-width: 560px) {
+    .media-card { flex-direction: column; }
+    .media-image { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+  }
+  .media-body { min-width: 0; }
+  .media-meta { margin: 0 0 0.3rem; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .media-text { margin: 0 0 0.5rem; font-size: 0.92rem; line-height: 1.5; }
+  .media-link { font-size: 0.85rem; color: var(--accent); }
+</style>

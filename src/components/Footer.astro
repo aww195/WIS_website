@@ -1,36 +1,65 @@
 ---
-// Footer — shared chrome, identical on every route.
+// Footer — shared chrome, identical on every route. Revised to the 3 Sep
+// spec (WO-4 §2.2):
 //
-// Carries the FR-CL contact line, the published location, and the reserved
-// A-2 slot. A-2 renders NOTHING at M3 — it is an anchor point so the M4
-// content lands in a decided position rather than wherever it fits. It
-// emits no element with layout, no heading, and no whitespace artifact;
-// see the region comment below.
-import ContactLine from './ContactLine.astro';
+//   Wright Intel Solutions, LLC
+//   Lancaster, VA
+//        [in] LinkedIn
+//   "Your first choice for understanding Government Intelligence Community Customers."
+//
+// The FR-CL contact line (tel / copy-email / LinkedIn) moved off the footer
+// and lives on /contact/ only. The A-2 reserved slot stays as a
+// non-rendering region.
+import { LINKEDIN_COMPANY, LOCATION_SHORT, BUMPER } from '../data/site';
 
 const year = new Date().getFullYear();
-
-// Published location. WO-1 recorded a conflict here — the old site said
-// "Lancaster, VA" while superseded capability statements printed a street
-// address. The capability statement published in WO-2 resolves it to the
-// city form with ZIP, which is what ships.
-const LOCATION = 'Lancaster, VA 22503';
 ---
 
 <footer class="border-t border-rule bg-surface mt-16">
-  <div class="w-full max-w-5xl mx-auto px-5 py-8 sm:px-6 flex flex-col gap-4">
-    <ContactLine />
+  <div class="w-full max-w-5xl mx-auto px-5 py-8 sm:px-6 footer-stack">
+    <p class="font-display text-ink m-0">Wright Intel Solutions, LLC</p>
+    <p class="font-mono text-xs text-muted m-0">{LOCATION_SHORT}</p>
 
-    <p class="font-mono text-xs text-muted m-0">{LOCATION}</p>
+    <a href={LINKEDIN_COMPANY} target="_blank" rel="noopener" class="footer-linkedin">
+      {/* LinkedIn glyph (Lucide, ISC). Decorative — the visible text is the label. */}
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+        <rect width="4" height="12" x="2" y="9"/>
+        <circle cx="4" cy="4" r="2"/>
+      </svg>
+      <span>Wright Intel Solutions, LLC on LinkedIn</span>
+    </a>
 
-    {/* A-2 — reserved region. Deliberately empty at M3 (WO-3 §3.4).
-        Rendered as a comment rather than an empty <div> so it adds no box,
-        no margin, and nothing for a screen reader to land on. M4 replaces
-        this comment with the component. */}
-    {/* A-2 SLOT — M4 */}
+    <p class="footer-bumper font-display">{BUMPER}</p>
 
-    <p class="font-mono text-xs text-muted m-0 pt-2 border-t border-rule">
+    {/* A-2 — reserved region. Deliberately empty; renders nothing. */}
+
+    <p class="font-mono text-xs text-muted m-0 pt-3 border-t border-rule w-full">
       © {year} Wright Intel Solutions, LLC
     </p>
   </div>
 </footer>
+
+<style>
+  .footer-stack {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 0.5rem;
+  }
+  .footer-linkedin {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    margin-top: 0.5rem;
+    color: var(--muted); text-decoration: none; font-size: 0.85rem;
+    border-bottom: 1px dotted color-mix(in srgb, var(--accent) 55%, transparent);
+    padding-bottom: 1px;
+  }
+  .footer-linkedin:hover, .footer-linkedin:focus-visible { color: var(--accent); border-bottom-color: var(--accent); }
+  .footer-bumper {
+    margin: 0.75rem 0 0.5rem;
+    max-width: 34rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-style: italic;
+    text-wrap: balance;
+  }
+</style>

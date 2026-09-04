@@ -1,16 +1,84 @@
 ---
-// Contact. The FR-CL contact line is the whole page at M3; the form is M5.
-// Nothing here promises a form that does not exist yet (H-5).
+// Contact. The FR-CL contact line lives here and only here now (WO-4 §2.2
+// moved it off the footer). The form markup is per FR-CF.6: labelled
+// fields, required, a honeypot, an accessible error region. Submit is
+// disabled with a one-sentence note until M5 wires the endpoint — no
+// script posts anywhere from this page yet.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContactLine from '../../components/ContactLine.astro';
+import { LOCATION } from '../../data/site';
 ---
 <BaseLayout
   title="Contact"
-  description="Reach Wright Intel Solutions, LLC by phone or email, or connect with the firm on LinkedIn."
+  description="Reach Wright Intel Solutions, LLC by phone or email, connect on LinkedIn, or use the contact form."
 >
   <h1 class="text-3xl sm:text-4xl">Contact</h1>
 
-  <div class="mt-6">
+  <div class="contact-block">
     <ContactLine />
+    <p class="font-mono text-xs text-muted contact-location">{LOCATION}</p>
   </div>
+
+  <form class="contact-form" method="post" action="" novalidate aria-describedby="form-note">
+    <div id="form-errors" class="form-errors" role="alert" aria-live="assertive"></div>
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" required autocomplete="name" aria-required="true" />
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="email" aria-required="true" inputmode="email" />
+    </div>
+
+    <div class="field">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="6" required aria-required="true"></textarea>
+    </div>
+
+    {/* Honeypot. Hidden from people (off-screen, tabindex -1, aria-hidden),
+        visible to form-fillers. Anything typed here marks the submission as
+        automated once the endpoint exists. */}
+    <div class="field-hp" aria-hidden="true">
+      <label for="website">Website</label>
+      <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="field-submit">
+      <button type="submit" disabled aria-disabled="true">Send</button>
+      <p id="form-note" class="form-note">
+        This form does not send messages yet — use the phone number or email address above.
+      </p>
+    </div>
+  </form>
 </BaseLayout>
+
+<style>
+  .contact-block { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .contact-location { margin: 0; }
+
+  .contact-form { margin-top: 2.5rem; max-width: 36rem; display: grid; gap: 1rem; }
+  .field { display: grid; gap: 0.35rem; }
+  .field label { font-size: 0.8rem; letter-spacing: 0.04em; color: var(--muted); }
+  .field input, .field textarea {
+    font: inherit; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--rule); border-radius: 4px; padding: 0.55rem 0.7rem;
+    width: 100%;
+  }
+  .field input:focus-visible, .field textarea:focus-visible { border-color: var(--accent); }
+
+  .field-hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+
+  .form-errors:empty { display: none; }
+  .form-errors { color: var(--signal); font-size: 0.9rem; }
+
+  .field-submit { display: grid; gap: 0.5rem; }
+  .field-submit button {
+    font: inherit; padding: 0.6rem 1.25rem; border-radius: 4px;
+    background: var(--accent); color: var(--surface); border: 0; cursor: pointer;
+    justify-self: start;
+  }
+  .field-submit button[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .form-note { margin: 0; font-size: 0.85rem; color: var(--muted); }
+</style>

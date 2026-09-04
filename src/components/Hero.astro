@@ -1,0 +1,59 @@
+---
+// Hero (OQ-2) — the Home hero as a static slot.
+//
+// Built as an image slot per WO-4 H-6: when the owner rules a piece of
+// owner-produced or licensed art, pass `image` and it renders full-bleed
+// behind the tagline. With no image it is a typographic hero — the tagline
+// and the statement, on the ground colour. No stock preview, no third-party
+// photography (C-5). A poster-gated loop is a separate ruling and is not
+// built here.
+import { TAGLINE } from '../data/site';
+
+interface Props {
+  /** Site-relative path under public/. Omit for the typographic hero. */
+  image?: string;
+  /** Descriptive alt for the image. Required when image is set. */
+  imageAlt?: string;
+}
+
+const { image, imageAlt = '' } = Astro.props;
+---
+<section class:list={['hero', { 'has-image': !!image }]} aria-labelledby="hero-tagline">
+  {image && <img src={image} alt={imageAlt} class="hero-image" decoding="async" fetchpriority="high" />}
+  <div class="hero-inner">
+    <p class="hero-kicker font-mono">Wright Intel Solutions, LLC</p>
+    <h1 id="hero-tagline" class="hero-tagline">{TAGLINE}</h1>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    margin: -2.5rem -1.25rem 0;
+    padding: 4rem 1.25rem 3rem;
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .hero { margin: -2.5rem -1.5rem 0; padding: 5rem 1.5rem 3.5rem; }
+  }
+  .hero-image {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; z-index: 0;
+  }
+  .hero.has-image::after {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(to top, color-mix(in srgb, var(--ground) 92%, transparent), color-mix(in srgb, var(--ground) 45%, transparent));
+  }
+  .hero-inner { position: relative; z-index: 2; max-width: 40rem; }
+  .hero-kicker {
+    margin: 0 0 0.75rem; font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .hero-tagline {
+    margin: 0; font-size: clamp(2rem, 6vw, 3.25rem); line-height: 1.08;
+    color: var(--ink);
+  }
+</style>

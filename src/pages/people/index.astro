@@ -1,38 +1,32 @@
 ---
-// People index.
-//
-// The roster is a list of links, not content. Bios, portraits and ordering
-// are M4 — nothing here invents copy (H-5). What it does fix is that
-// /people/tony-wright/ was previously reachable only by typing the URL:
-// no page linked it, so the site had a route no visitor could find.
-//
-// Entries are data so M4 adds a person by adding a row here, not by
-// editing markup. Titles are only listed for people whose title is
-// settled; the roster renders a name alone if `title` is omitted.
+// People index — the roster. Three cards: portrait, name, title, one line,
+// link to the page. Order and titles come from src/data/people.ts.
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
-interface Person {
-  name: string;
-  href: string;
-  title?: string;
-}
-
-const roster: Person[] = [
-  { name: 'Tony Wright', href: '/people/tony-wright/', title: 'Chief Technology Officer' },
-];
+import { people, href } from '../../data/people';
 ---
 <BaseLayout
   title="People"
-  description="The senior Intelligence Community and engineering leaders behind Wright Intel Solutions, LLC."
+  description="The leadership of Wright Intel Solutions, LLC: Lynn Wright, Chief Executive Officer; Tony Wright, Chief Technology Officer; Greg Culkowski, Chief Scientist."
 >
   <h1 class="text-3xl sm:text-4xl">People</h1>
 
   <ul class="roster">
-    {roster.map((person) => (
+    {people.map((person) => (
       <li class="roster-item">
-        <a href={person.href} class="roster-link">
-          <span class="roster-name font-display">{person.name}</span>
-          {person.title && <span class="roster-title font-mono">{person.title}</span>}
+        <a href={href(person)} class="roster-link">
+          <img
+            src={person.portrait}
+            alt={`Portrait of ${person.name}`}
+            width="96" height="96"
+            class="roster-portrait"
+            decoding="async"
+            loading="lazy"
+          />
+          <span class="roster-text">
+            <span class="roster-name font-display">{person.name}</span>
+            <span class="roster-title font-mono">{person.title}</span>
+            <span class="roster-line">{person.line}</span>
+          </span>
         </a>
       </li>
     ))}
@@ -40,42 +34,24 @@ const roster: Person[] = [
 </BaseLayout>
 
 <style>
-  .roster {
-    list-style: none;
-    margin: 2rem 0 0;
-    padding: 0;
-    display: grid;
-    gap: 0.75rem;
-  }
+  .roster { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 0.75rem; }
 
-  /* The whole row is the target, so it stays comfortable to hit on a
+  /* The whole card is the target, so it stays comfortable to hit on a
      touch screen rather than being a name-sized tap area. */
   .roster-link {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    padding: 0.9rem 1rem;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    background: var(--surface);
-    text-decoration: none;
-    color: var(--ink);
+    display: flex; align-items: center; gap: 1.25rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule); border-radius: 4px; background: var(--surface);
+    text-decoration: none; color: var(--ink);
   }
-
-  .roster-link:hover {
-    border-color: var(--accent);
+  .roster-link:hover { border-color: var(--accent); }
+  .roster-portrait {
+    width: 96px; height: 96px; object-fit: cover; border-radius: 50%;
+    border: 1px solid var(--rule); flex: none;
   }
-
-  .roster-name {
-    font-size: 1.15rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-
-  .roster-title {
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
+  @media (max-width: 480px) { .roster-portrait { width: 72px; height: 72px; } }
+  .roster-text { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+  .roster-name { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
+  .roster-title { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .roster-line { font-size: 0.9rem; color: var(--muted); line-height: 1.45; }
 </style>

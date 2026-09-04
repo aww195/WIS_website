@@ -1,0 +1,97 @@
+---
+// PdfViewLayout — "show a PDF in the frame with a download button" (WO-4 §3).
+// Used by /capabilities/pdf/ and /people/tony-wright/resume/.
+//
+// Three tiers, so every browser gets something useful:
+//   1. <object type="application/pdf"> — inline viewer where the browser has one.
+//   2. <iframe> fallback inside the object — some engines honour one and not
+//      the other.
+//   3. A plain link inside the iframe — iOS Safari and others that refuse to
+//      embed PDFs render this text instead of a blank frame.
+// The DOWNLOAD button sits above the frame regardless, so the file is always
+// one tap away even where nothing embeds.
+//
+// Pages using this layout are noindex: the parent HTML page is the
+// indexable surface. They are also excluded from the sitemap
+// (astro.config.mjs).
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Site-relative path under public/. */
+  pdfPath: string;
+  /** Filename the browser saves as. */
+  downloadName: string;
+  /** Link back to the parent page. */
+  backTo: { href: string; label: string };
+}
+
+const { title, description, pdfPath, downloadName, backTo } = Astro.props;
+---
+<BaseLayout title={title} description={description} activePath={backTo.href} noindex={true}>
+  <nav class="pdf-back font-mono" aria-label="Breadcrumb">
+    <a href={backTo.href}>← {backTo.label}</a>
+  </nav>
+
+  <h1 class="text-3xl sm:text-4xl">{title}</h1>
+
+  <p class="pdf-actions">
+    <a href={pdfPath} download={downloadName} class="pdf-download">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
+      </svg>
+      DOWNLOAD
+      <span class="pdf-download-name">{downloadName}</span>
+    </a>
+  </p>
+
+  <div class="pdf-frame">
+    <object data={pdfPath} type="application/pdf" aria-label={`${title} (PDF)`}>
+      <iframe src={pdfPath} title={`${title} (PDF)`}>
+        <p>
+          This browser does not display PDF files inline.{' '}
+          <a href={pdfPath}>Open {downloadName}</a> or use the download button above.
+        </p>
+      </iframe>
+    </object>
+  </div>
+
+  <p class="pdf-fallback-note">
+    If the document does not appear above,{' '}<a href={pdfPath}>open the PDF directly</a>.
+  </p>
+</BaseLayout>
+
+<style>
+  .pdf-back { font-size: 0.75rem; margin-bottom: 1rem; }
+  .pdf-back a { color: var(--muted); text-decoration: none; }
+  .pdf-back a:hover { color: var(--accent); }
+
+  .pdf-actions { margin: 1.25rem 0; }
+  .pdf-download {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: var(--accent); color: var(--surface);
+    border-radius: 4px; text-decoration: none;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.8rem; letter-spacing: 0.08em;
+  }
+  .pdf-download:hover, .pdf-download:focus-visible { filter: brightness(1.12); }
+  .pdf-download-name { opacity: 0.8; letter-spacing: 0; text-transform: none; font-size: 0.72rem; }
+
+  .pdf-frame {
+    border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+    background: var(--surface);
+    /* Tall enough to read a letter page; short enough that the download
+       button stays in view on a phone. */
+    height: min(80vh, 1100px);
+  }
+  .pdf-frame :global(object), .pdf-frame :global(iframe) {
+    display: block; width: 100%; height: 100%; border: 0;
+  }
+  .pdf-frame :global(p) { padding: 1.5rem; margin: 0; }
+  .pdf-frame :global(a), .pdf-fallback-note a { color: var(--accent); }
+
+  .pdf-fallback-note { font-size: 0.8rem; color: var(--muted); margin-top: 0.75rem; }
+</style>
