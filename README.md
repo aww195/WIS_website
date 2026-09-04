@@ -47,3 +47,44 @@ deployment credentials or resource identifiers live here.
 ## Change log
 
 See [MAINTENANCE_LOG.md](./MAINTENANCE_LOG.md).
+
+
+## Deploy
+
+The site is static output served from an object-store bucket behind a CDN
+distribution with two edge functions (`infra/cloudfront/`). Resource
+identifiers are never written here; set them in the shell for the session.
+
+```bash
+export DIST_ID=...                       # the distribution serving wrightintel.net
+export SITE_BUCKET=wrightintel-net-site-prod
+```
+
+Every release is three steps:
+
+```bash
+# 1. Build from a clean main. .env must carry the production PUBLIC_CONTACT_ENDPOINT.
+git checkout main && git pull --ff-only
+npm ci && npm run build
+bash scripts/preflight.sh
+grep -rl localhost dist && echo "STOP" || echo "dist clean"
+
+# 2. Publish. --delete removes objects that are no longer in dist/.
+aws s3 sync dist/ "s3://$SITE_BUCKET" --delete --only-show-errors
+
+# 3. Invalidate. HTML is cached 300 s at the edge; hashed assets are immutable.
+aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths '/*'
+```
+
+Then check `https://www.wrightintel.net/` and one deep route in a browser.
+
+**If `src/layouts/BaseLayout.astro`'s inline theme script changes**, the
+Content-Security-Policy hash in `infra/cloudfront/viewer-response.js` must be
+recomputed and the function republished *before* the sync — see
+`infra/cloudfront/README.md`. Every other script is an external file and
+needs nothing.
+
+The distribution itself (origin, function associations, error responses,
+WAF, HTTP/3) was configured once, at the M7 cutover on 4 Sep 2026, and is not
+part of a release. Changing it is a deliberate, logged event — see
+`MAINTENANCE_LOG.md`.
