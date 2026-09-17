@@ -1,5 +1,6 @@
 ---
-// Tony Wright — Chief Technology Officer.
+// Anthony Wayne (Tony) Wright — Chief Technology Officer.
+// Name and LinkedIn URL come from src/data/people.ts (WO-9 name sync).
 //
 // Bio is his LinkedIn "About" plus the Wright Intel Solutions experience
 // entry (owner-supplied LinkedIn text, harvest/linkedin/LinkedIn_Notes.txt,
@@ -14,11 +15,11 @@ const person = bySlug('tony-wright');
 ---
 <PersonLayout
   person={person}
-  description={`${person.name}, ${person.title} at Wright Intel Solutions, LLC — program and operations leader, PMP and PMI-ACP certified, former Naval Aviator.`}
+  description={`${person.name}, ${person.title} at Wright Intel Solutions, LLC — program and operations leader, PMP and PMI-ACP, former Naval Aviator.`}
 >
   <p>
-    Program and operations leader who runs the seam between customers,
-    production floors, and software teams. Doubled manufacturing productivity
+    {person.name} is a program and operations leader who runs the seam
+    between customers, production floors, and software teams. Doubled manufacturing productivity
     to a $12M benchmark; led international production, procurement, and 24/7
     customer-support operations; Product Owner for six major software
     programs. PMP and PMI-ACP certified, M.A. in Organizational Management,

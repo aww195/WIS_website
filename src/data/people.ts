@@ -4,8 +4,10 @@
 
 export interface Person {
   slug: string;
-  /** Name as published. */
+  /** Name as published — synced to LinkedIn, the canonical identity source (SRS §1.4). */
   name: string;
+  /** Short form of the name, when the published form is longer (JSON-LD alternateName). */
+  alternateName?: string;
   /** Short form for the nav ("CEO — Lynn Wright"). */
   short: string;
   title: string;
@@ -29,12 +31,13 @@ export const people: Person[] = [
   },
   {
     slug: 'tony-wright',
-    name: 'Tony Wright',
+    name: 'Anthony Wayne (Tony) Wright',
+    alternateName: 'Tony Wright',
     short: 'CTO',
     title: 'Chief Technology Officer',
     portrait: '/assets/img/tony-wright.webp',
     line: 'Program and operations leader who runs the seam between customers, production floors, and software teams.',
-    linkedin: 'https://www.linkedin.com/in/anthonywrightfairfax',
+    linkedin: 'https://www.linkedin.com/in/aww195',
   },
   {
     slug: 'greg-culkowski',

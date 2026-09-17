@@ -1,11 +1,14 @@
 ---
 // /people/tony-wright/resume/ — the résumé in the frame (WO-4 §3, §6.3).
 import PdfViewLayout from '../../../layouts/PdfViewLayout.astro';
+import { bySlug } from '../../../data/people';
+
+const person = bySlug('tony-wright');
 ---
 <PdfViewLayout
-  title="Tony Wright — Résumé"
-  description="Résumé of Tony Wright, Chief Technology Officer at Wright Intel Solutions, LLC, as a PDF with a download button."
+  title={`${person.name} — Résumé`}
+  description={`Résumé of ${person.name}, ${person.title} at Wright Intel Solutions, LLC, as a PDF with a download button.`}
   pdfPath="/assets/docs/Tony_Wright_Resume_GovCon.pdf"
   downloadName="Tony_Wright_Resume_GovCon.pdf"
-  backTo={{ href: '/people/tony-wright/', label: 'Tony Wright' }}
+  backTo={{ href: '/people/tony-wright/', label: person.name }}
 />

@@ -6,7 +6,7 @@ import { people, href } from '../../data/people';
 ---
 <BaseLayout
   title="People"
-  description="The leadership of Wright Intel Solutions, LLC: Lynn Wright, Chief Executive Officer; Tony Wright, Chief Technology Officer; Greg Culkowski, Chief Scientist."
+  description={`The leadership of Wright Intel Solutions, LLC: ${people.map((p) => `${p.name}, ${p.short}`).join('; ')}.`}
 >
   <h1 class="text-3xl sm:text-4xl">People</h1>
 

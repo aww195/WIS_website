@@ -23,6 +23,8 @@ interface Props {
   /** Person pages pass the subject; emits og:type=profile and a Person node. */
   person?: {
     name: string;
+    /** Short form kept attached in the graph when the published name is longer. */
+    alternateName?: string;
     jobTitle: string;
     image: string;
     sameAs?: string;
@@ -81,6 +83,7 @@ if (person) {
     '@type': 'Person',
     '@id': canonical.toString() + '#person',
     name: person.name,
+    ...(person.alternateName ? { alternateName: person.alternateName } : {}),
     jobTitle: person.jobTitle,
     worksFor: { '@id': organization['@id'] },
     image: abs(person.image),
